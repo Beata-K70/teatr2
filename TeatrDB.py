@@ -9,6 +9,12 @@ from mysql.connector import errorcode
 import KlientDef
 
 
+def init():
+    mydb = init_database()
+    cursor1 = mydb.cursor()
+    init_tabele(cursor1)
+
+
 def init_database():
     try:
         mydb = mysql.connector.connect(
@@ -28,6 +34,7 @@ def init_database():
                 buffered=True,
             )
             create_database(mydb.cursor())
+
 
         else:
             print("Bląd inicjalizacji bazy danych:", ex)
@@ -55,6 +62,7 @@ TABLES['klienci'] = (
     "CREATE TABLE `klienci` ("
     "  `klient_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
     "  `name` varchar(60) NOT NULL,"
+    "  `forname` varchar(60) NOT NULL,"
     "  `city` varchar(60),"
     "  `street` varchar(60),"
     "  `email`  varchar(60),"
@@ -119,8 +127,17 @@ def add_klient(klient):
     db1 = init_database()
     cursor1 = db1.cursor()
 
-    sql = f'INSERT INTO {TABELA_KLIENT} (name, city, street, email, phone) VALUES (%s, %s, %s, %s, %s)'
-    val = (klient.imie_nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
+    sql = f'INSERT INTO {TABELA_KLIENT} (name, forname, city, street, email, phone) VALUES (%s, %s, %s, %s, %s, %s)'
+    val = (klient.imie, klient.nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
+    cursor1.execute(sql, val)
+    db1.commit()
+
+def add_impreza(impreza):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+
+    sql = f'INSERT INTO {TABELA_IMPREZ} (nazwa, date, sala) VALUES (%s, %s, %s)'
+    val = (impreza.nazwa, impreza.data, impreza.sala)
     cursor1.execute(sql, val)
     db1.commit()
 
@@ -141,4 +158,6 @@ if __name__ == "__main__":
     my_cursor = mydb.cursor()
     init_tabele(my_cursor)
 
-    my_cursor.execute("SHOW TABLES")
+    lista = load_klints()
+    for x in lista:
+        print(x)

@@ -8,6 +8,7 @@ import ImprezaDialog
 import TeatrDB
 
 from KlientDef import *
+from ImprezaDef import *
 
 
 class TeatrApp:
@@ -23,6 +24,7 @@ class TeatrApp:
         self.evImpreza.trace("w", self.imprezaCallback)
 
         self.klient = Klient()
+        self.impreza = Impreza()
 
         self.window.geometry('1024x600')
         self.window.title('Teatr')
@@ -50,12 +52,6 @@ class TeatrApp:
         self.tree = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
         self._build_tree()
 
-        # self.listBox = tk.Listbox(self.middle, bg='green')
-        # listbox = self.listBox
-        # listbox.insert(1, "frytki")
-        # listbox.insert(2, "sledziki")
-        # listbox.insert(3, "obwarzanki")
-
         # --- StatusBar -------
         status_bar = tk.Frame(self.window)  # , background='yellow')
         status_bar.grid(row=2, column=0, padx=5, pady=2, columnspan=1, sticky=tk.NSEW)
@@ -66,7 +62,7 @@ class TeatrApp:
         # main
         self.window.mainloop()
 
-    klient_header = ['id', 'Imię, nazwisko', 'Miejscowość', "Ulica", 'emai', 'telefon']
+    klient_header = ['id', 'Imię','Nazwisko', 'Miejscowość', "Ulica", 'emai', 'telefon']
 
     def handleClick(app):
         print('handleClick')
@@ -199,7 +195,7 @@ class TeatrApp:
         ev_val = app.evImpreza.get()
         if ev_val == ImprezaDialog.ImprezaForm.NEW_IMPREZA:
             app.add_editor("Nowa impreza\n")
-            TeatrDB.add_klient(app.klient)
+            TeatrDB.add_impreza(app.impreza)
         if ev_val == ImprezaDialog.ImprezaForm.UPDATE_IMPREZA:
             app.add_editor("poprawiona impreza\n")
 
@@ -234,7 +230,7 @@ class TeatrApp:
         KlientDialog.KlientForm(app.window, app.evKlient, app.klient, True)
 
     def _btn_impreza(app):
-        ImprezaDialog.ImprezaForm(app.window, app.evKlient, app.klient, True)
+        ImprezaDialog.ImprezaForm(app.window, app.evImpreza, app.impreza, True)
 
 
     def dodaj_klient(app):
@@ -252,8 +248,11 @@ class TeatrApp:
         app.aktywny_edytor()
 
     def btn_message_click(app):
-        messagebox.showinfo(title="Informatio", message = "Pierwszy message")
+        #messagebox.showinfo(title="Informatio", message = "Pierwszy message")
+        if messagebox.askokcancel(title="Pytanie", message = "Zamknąc okno"  ):
+            print("Zamknąc")
 
 
 # ---------------
+TeatrDB.init()
 TeatrApp()

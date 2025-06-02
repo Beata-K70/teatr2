@@ -8,25 +8,59 @@ Projekt kursu PYTHON
 --------------------------------------------------------------
 """
 
+
 class Klient:
     def __init__(self):
-        self.imie_nazwisko = ""
+        self._imie = ""
+        self._nazwisko = ""
         self.miejscowosc = ""
         self.adres = ""
-        self.email = ""
+        self._email = ""
         self.telefon = ""
 
     def __str__(self):
-        return f'Klient:{self.imie_nazwisko}, Adres:{self.miejscowosc}, ul.{self.adres}, email:{self.email}, telefon:{self.telefon}'
+        return f'Klient:{self.imie} {self.nazwisko}, Adres:{self.miejscowosc}, ul.{self.adres}, email:{self.email}, telefon:{self.telefon}'
 
     def kopiuj_z(self, zrodlo):
-        self.imie_nazwisko = zrodlo.imie_nazwisko
+        self._imie = zrodlo._imie
+        self._nazwisko = zrodlo._nazwisko
         self.miejscowosc = zrodlo.miejscowosc
         self.adres = zrodlo.adres
-        self.email = zrodlo.email
+        self._email = zrodlo._email
         self.telefon = zrodlo.telefon
 
+    @property
+    def imie(self):
+        return self._imie
 
+    @imie.setter
+    def imie(self, imie):
+        if imie != "":
+            self._imie = imie
+        else:
+            raise Exception("Imie nie może być puste")
 
+    @property
+    def nazwisko(self):
+        return self._nazwisko
 
+    @nazwisko.setter
+    def nazwisko(self, nazwisko):
+        if nazwisko != "":
+            self._nazwisko = nazwisko
+        else:
+            raise Exception("Nazwisko nie może być puste")
 
+    @property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, email):
+        if email != "":
+            if "@" in email:
+                self._email = email
+            else:
+                raise Exception("Niepoprawny email")
+        else:
+            raise Exception("Email nie może być pusty")

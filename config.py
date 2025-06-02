@@ -1,6 +1,6 @@
 #----- konfiguracja -----
 
-TEATR_DATABASE_NAME = "teatr"
+TEATR_DATABASE_NAME = "teatr2"
 DATABASE_USER = 'sprzedawca'
 DATABASE_USER_PASSWD = 'sprzedawca_biletow'
 
