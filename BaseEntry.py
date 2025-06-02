@@ -1,12 +1,11 @@
 import tkinter as tk
-
+from tkinter import ttk
 
 class BaseForm(tk.Toplevel):
-    def __init__(self, parent, ilosc_elementow):
+    def __init__(self, parent):
         super().__init__(parent)  # *args, **kwargs)
 
         self._set_center_position(parent)
-        self.title('Klient')
         self.attributes('-topmost', 'true')
         #        self.resizable = False
         self.resizable(False, False)
@@ -15,9 +14,6 @@ class BaseForm(tk.Toplevel):
         self.grid_columnconfigure(0, weight=1)
         self.positionfrom()
 
-        self._varTab = []
-        for x in range(ilosc_elementow):
-            self._varTab.append(tk.StringVar())
 
         self._create_widgets()
 
@@ -50,6 +46,15 @@ class BaseForm(tk.Toplevel):
         entry = tk.Entry(item_fr, width=30, textvariable=var)
         entry.pack(side=tk.LEFT, padx=5)
 
+    def _add_combobox_item(self, parent, caption, var):
+        item_fr = tk.Frame(parent )# , background='blue')
+        item_fr.grid(sticky=tk.EW)
+        label = tk.Label(item_fr, text=caption + ':', width=14, anchor="e")
+        label.pack(side=tk.LEFT, padx=5)
+        entry = ttk.Combobox(item_fr, width=30, textvariable=var,     state="readonly",    values=["Python", "C", "C++", "Java"])
+        entry.pack(side=tk.LEFT, padx=5)
+
+
     def _set_center_position(self, main_w):
         x = main_w.winfo_x()
         y = main_w.winfo_y()
@@ -65,8 +70,7 @@ class BaseForm(tk.Toplevel):
         self.destroy()
 
     def _clear_btn_click(self):
-        for x in range(len(self._varTab)):
-            self._varTab[x].set("")
+        pass
 
     def _add_edit_items(self, frame):
         pass

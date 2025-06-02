@@ -1,7 +1,10 @@
 import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import ttk
-import KlientEntry
+from tkinter import messagebox
+
+import KlientDialog
+import ImprezaDialog
 import TeatrDB
 
 from KlientDef import *
@@ -14,8 +17,11 @@ class TeatrApp:
         self.statusTab = []
 
         self.window = tk.Tk()
-        self.event = tk.IntVar(master=self.window, name="Event1")
-        self.event.trace("w", self.callback)
+        self.evKlient = tk.IntVar(master=self.window, name="KlientEvent")
+        self.evKlient.trace("w", self.klientCallback)
+        self.evImpreza = tk.IntVar(master=self.window, name="ImprezaEvent")
+        self.evImpreza.trace("w", self.imprezaCallback)
+
         self.klient = Klient()
 
         self.window.geometry('1024x600')
@@ -129,8 +135,13 @@ class TeatrApp:
         KlientBnt = tk.Button(bar, text="Klient", fg="blue", command=self._btn_klient)
         KlientBnt.pack(side=tk.LEFT, ipadx=0)
 
+        ImprezaBnt = tk.Button(bar, text="Impreza", fg="blue", command=self._btn_impreza)
+        ImprezaBnt.pack(side=tk.LEFT, ipadx=0)
+
         tk.Button(bar, text="Lista", fg="blue", command=self.lista_btn_click).pack(side=tk.LEFT, ipadx=2)
         tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=2)
+
+        tk.Button(bar, text="Message", fg="blue", command=self.btn_message_click).pack(side=tk.LEFT, ipadx=2)
 
     def _dodaj_glowne_menu(self, glowne_okno):
         menu_bar = tk.Menu(glowne_okno)
@@ -174,14 +185,24 @@ class TeatrApp:
     def add_editor(self, txt):
         self.editor1.insert(tk.INSERT, txt)
 
-    def callback(*sv):
+    def klientCallback(*sv):
         app = sv[0]
-        ev_val = app.event.get()
-        if ev_val == KlientEntry.KlientForm.NEW_KLIENT:
+        ev_val = app.evKlient.get()
+        if ev_val == KlientDialog.KlientForm.NEW_KLIENT:
             app.add_editor("Nowy klient\n")
             TeatrDB.add_klient(app.klient)
-        if ev_val == KlientEntry.KlientForm.UPDATE_KLIENT:
+        if ev_val == KlientDialog.KlientForm.UPDATE_KLIENT:
             app.add_editor("poprawiony klient\n")
+
+    def imprezaCallback(*sv):
+        app = sv[0]
+        ev_val = app.evImpreza.get()
+        if ev_val == ImprezaDialog.ImprezaForm.NEW_IMPREZA:
+            app.add_editor("Nowa impreza\n")
+            TeatrDB.add_klient(app.klient)
+        if ev_val == ImprezaDialog.ImprezaForm.UPDATE_IMPREZA:
+            app.add_editor("poprawiona impreza\n")
+
 
     def make_active(app):
         app.redbutton.config(state="active")
@@ -210,13 +231,17 @@ class TeatrApp:
         print_fun('To jest text\n')
 
     def _btn_klient(app):
-        KlientEntry.KlientForm(app.window, app.event, app.klient, True)
+        KlientDialog.KlientForm(app.window, app.evKlient, app.klient, True)
+
+    def _btn_impreza(app):
+        ImprezaDialog.ImprezaForm(app.window, app.evKlient, app.klient, True)
+
 
     def dodaj_klient(app):
-        KlientEntry.KlientForm(app.window, app.event, app.klient, True)
+        KlientDialog.KlientForm(app.window, app.evKlient, app.klient, True)
 
     def edytuj_klient(app):
-        KlientEntry.KlientForm(app.window, app.event, app.klient, False)
+        KlientDialog.KlientForm(app.window, app.evKlient, app.klient, False)
 
     def lista_btn_click(app):
         app.aktywna_lista()
@@ -225,6 +250,9 @@ class TeatrApp:
 
     def edytor_btn_click(app):
         app.aktywny_edytor()
+
+    def btn_message_click(app):
+        messagebox.showinfo(title="Informatio", message = "Pierwszy message")
 
 
 # ---------------
