@@ -11,6 +11,7 @@ Projekt kursu PYTHON
 
 class Klient:
     def __init__(self):
+        self.id = -1  # index z bazy danych
         self._imie = ""
         self._nazwisko = ""
         self.miejscowosc = ""
@@ -22,12 +23,22 @@ class Klient:
         return f'Klient:{self.imie} {self.nazwisko}, Adres:{self.miejscowosc}, ul.{self.adres}, email:{self.email}, telefon:{self.telefon}'
 
     def kopiuj_z(self, zrodlo):
+        self.id = zrodlo.id
         self._imie = zrodlo._imie
         self._nazwisko = zrodlo._nazwisko
         self.miejscowosc = zrodlo.miejscowosc
         self.adres = zrodlo.adres
         self._email = zrodlo._email
         self.telefon = zrodlo.telefon
+
+    def laduj_z_tablicy(self,tab):
+        self.id = tab[0]
+        self._imie = tab[1]
+        self._nazwisko = tab[2]
+        self.miejscowosc = tab[3]
+        self.adres = tab[4]
+        self._email = tab[5]
+        self.telefon = tab[6]
 
     @property
     def imie(self):

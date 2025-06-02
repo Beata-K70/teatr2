@@ -50,7 +50,7 @@ class TeatrApp:
         self.editor1 = tk.Text(self.middle, bg='white')
         self.editor1.grid(row=0, column=0, sticky=tk.NSEW)
         self.tree = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
-        self._build_tree()
+        self._add_tree_menu()
 
         # --- StatusBar -------
         status_bar = tk.Frame(self.window)  # , background='yellow')
@@ -62,7 +62,7 @@ class TeatrApp:
         # main
         self.window.mainloop()
 
-    klient_header = ['id', 'Imię','Nazwisko', 'Miejscowość', "Ulica", 'emai', 'telefon']
+    klient_header = ['id', 'Imię', 'Nazwisko', 'Miejscowość', "Ulica", 'emai', 'telefon']
 
     def handleClick(app):
         print('handleClick')
@@ -70,19 +70,19 @@ class TeatrApp:
     def handleRightClick(self, event):
         focused = self.tree.focus()
         if focused == "":
-            item_state=tk.DISABLED
+            item_state = tk.DISABLED
         else:
-            item_state=tk.ACTIVE
+            item_state = tk.ACTIVE
         self.context_menu.entryconfigure("Edytuj", state=item_state)
         self.context_menu.post(event.x_root, event.y_root)
 
-    def _build_tree(self):
+    def _add_tree_menu(self):
         self.context_menu = tk.Menu(self.window, tearoff=0, )
-        self.context_menu.add_command(label="Edytuj", command=self.edytuj_klient)
-        self.context_menu.add_command(label="Option 2", command=self.handleClick)
+        self.context_menu.add_command(label="Kup bilet", command=self.lista_kup_bilet)
+        self.context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="Quit", command=self.window.quit)
-
+        self.context_menu.add_command(label="Edytuj", command=self.lista_edytuj_klient)
+        self.context_menu.add_command(label="Usuń", command=self.lista_usun_klient)
 
         self.tree.bind("<Button-3>", self.handleRightClick)
 
@@ -112,6 +112,12 @@ class TeatrApp:
         self.editor1.grid_forget()
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
 
+    def reload_list_klientow(self):
+        self.aktywna_lista()
+        klients = TeatrDB.load_klints()
+        self.fill_list_klients(klients)
+
+
     def _dadaj_pola_statusu(self, frame):
         status_w = [(10, "w"), (5, "center"), (15, "w"), (25, "w")]
         idx = 1
@@ -122,19 +128,19 @@ class TeatrApp:
             idx += 1
 
     def _dodaj_szybkie_buttony(self, bar):
-        self.redbutton = tk.Button(bar, text="Wyczyść", fg="red", command=self.clear_btn_click)
+        self.redbutton = tk.Button(bar, text="Kup bilet", fg="red", command=self._kup_bilet_btn_click)
         self.redbutton.pack(side=tk.LEFT, ipadx=0)
 
         greenbutton = tk.Button(bar, text="Green", fg="green", command=self._btn_cmd_green)
         greenbutton.pack(side=tk.LEFT, ipadx=0)
 
-        KlientBnt = tk.Button(bar, text="Klient", fg="blue", command=self._btn_klient)
+        KlientBnt = tk.Button(bar, text="Dodaj klient", fg="blue", command=self._btn_klient)
         KlientBnt.pack(side=tk.LEFT, ipadx=0)
 
         ImprezaBnt = tk.Button(bar, text="Impreza", fg="blue", command=self._btn_impreza)
         ImprezaBnt.pack(side=tk.LEFT, ipadx=0)
 
-        tk.Button(bar, text="Lista", fg="blue", command=self.lista_btn_click).pack(side=tk.LEFT, ipadx=2)
+        tk.Button(bar, text="Lista klientów", fg="blue", command=self.lista_btn_click).pack(side=tk.LEFT, ipadx=2)
         tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=2)
 
         tk.Button(bar, text="Message", fg="blue", command=self.btn_message_click).pack(side=tk.LEFT, ipadx=2)
@@ -154,7 +160,7 @@ class TeatrApp:
         # ----
         klient_menu = tk.Menu(menu_bar, tearoff=0)
         klient_menu.add_command(label="Nowy", command=self.dodaj_klient)
-        klient_menu.add_command(label="Edytuj", command=self.edytuj_klient)
+        klient_menu.add_command(label="Edytuj", command=self.lista_edytuj_klient)
         menu_bar.add_cascade(label="Klient", menu=klient_menu)
 
         # ----
@@ -185,20 +191,20 @@ class TeatrApp:
         app = sv[0]
         ev_val = app.evKlient.get()
         if ev_val == KlientDialog.KlientForm.NEW_KLIENT:
-            app.add_editor("Nowy klient\n")
             TeatrDB.add_klient(app.klient)
+            app.reload_list_klientow()
         if ev_val == KlientDialog.KlientForm.UPDATE_KLIENT:
-            app.add_editor("poprawiony klient\n")
+            TeatrDB.update_klient(app.klient)
+            app.reload_list_klientow()
+
 
     def imprezaCallback(*sv):
         app = sv[0]
         ev_val = app.evImpreza.get()
         if ev_val == ImprezaDialog.ImprezaForm.NEW_IMPREZA:
-            app.add_editor("Nowa impreza\n")
             TeatrDB.add_impreza(app.impreza)
         if ev_val == ImprezaDialog.ImprezaForm.UPDATE_IMPREZA:
-            app.add_editor("poprawiona impreza\n")
-
+            pass
 
     def make_active(app):
         app.redbutton.config(state="active")
@@ -209,7 +215,7 @@ class TeatrApp:
     def do_nothing(app):
         print(type(app))
 
-    def clear_btn_click(app):
+    def _kup_bilet_btn_click(app):
         app.clear_editor()
         # msize = app.editor1.count("1.0", tk.INSERT)
         # app.editor1.insert(tk.INSERT, f'Red Btn size = [{msize[0]}]\n')
@@ -232,24 +238,53 @@ class TeatrApp:
     def _btn_impreza(app):
         ImprezaDialog.ImprezaForm(app.window, app.evImpreza, app.impreza, True)
 
-
+    # -- Klient --------------------------------
     def dodaj_klient(app):
         KlientDialog.KlientForm(app.window, app.evKlient, app.klient, True)
 
-    def edytuj_klient(app):
-        KlientDialog.KlientForm(app.window, app.evKlient, app.klient, False)
+    def lista_kup_bilet(app):
+        pass
+
+    def get_selected_klient_z_listy(self):
+        selected_list = self.tree.selection()
+        if len(selected_list) > 0:
+            selected = selected_list[0]
+            child = self.tree.item(selected)
+            klient_id = child["values"][0]
+            return klient_id
+        else:
+            return -1
+
+    def lista_edytuj_klient(app):
+        klient_id = app.get_selected_klient_z_listy()
+        if klient_id > 0:
+            if TeatrDB.load_klient(klient_id, app.klient):
+                KlientDialog.KlientForm(app.window, app.evKlient, app.klient, False)
+
+    def lista_usun_klient(app):
+        klient_id = app.get_selected_klient_z_listy()
+        if klient_id > 0:
+            tmp_klient = Klient()
+            if TeatrDB.load_klient(klient_id, tmp_klient):
+                klient_info = f' {tmp_klient.imie} {tmp_klient.nazwisko} '
+                txt = f'Czy chcesz usunść klienta {klient_info} ?'
+                if messagebox.askyesno(title="Usuwanie klienta", message=txt):
+                    if not TeatrDB.delete_klient(tmp_klient.id) :
+                        messagebox.showinfo(title="Error", message=f'Błąd usunięcia klienta {klient_info} ')
+        app.reload_list_klientow()
+
+    def lista_pokaz_bilety_klienta(app):
+        pass
 
     def lista_btn_click(app):
-        app.aktywna_lista()
-        klients = TeatrDB.load_klints()
-        app.fill_list_klients(klients)
+        app.reload_list_klientow()
 
     def edytor_btn_click(app):
         app.aktywny_edytor()
 
     def btn_message_click(app):
-        #messagebox.showinfo(title="Informatio", message = "Pierwszy message")
-        if messagebox.askokcancel(title="Pytanie", message = "Zamknąc okno"  ):
+        # messagebox.showinfo(title="Informatio", message = "Pierwszy message")
+        if messagebox.askokcancel(title="Pytanie", message="Zamknąc okno"):
             print("Zamknąc")
 
 

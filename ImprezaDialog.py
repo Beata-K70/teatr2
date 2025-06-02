@@ -1,5 +1,5 @@
 from tkinter import *
-from BaseEntry import *
+from BaseDialog import *
 from ImprezaDef import *
 from tkinter import messagebox
 
@@ -12,14 +12,14 @@ class ImprezaForm(BaseForm):
 
         self.impreza = impreza
         self.event = event
+        self._nowy = nowy
+
         self._varNazwa = tk.StringVar()
         self._varData = tk.StringVar()
         self._varSala = tk.StringVar()
 
-
         super().__init__(parent)
         self.title('Impreza')
-        self._nowy = nowy
 
         if not nowy:
             self._set_impreza(impreza)
@@ -28,7 +28,10 @@ class ImprezaForm(BaseForm):
         return [320, 200]  # width x height
 
     def _add_edit_items(self, frame):
-        self._add_edit_item(frame, "Nazwa", self._varNazwa)
+
+        nazaEntry = self._add_edit_item(frame, "Nazwa", self._varNazwa)
+        if not self._nowy:
+            nazaEntry.config(state="disabled")
         self._add_combobox_item(frame, "Sala", self._varSala)
         self._add_edit_item(frame, "Data", self._varData)
 

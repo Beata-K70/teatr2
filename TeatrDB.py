@@ -123,6 +123,8 @@ def init_db():
     return False
 
 
+# ---- tablica klienci ---------
+
 def add_klient(klient):
     db1 = init_database()
     cursor1 = db1.cursor()
@@ -131,6 +133,42 @@ def add_klient(klient):
     val = (klient.imie, klient.nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
     cursor1.execute(sql, val)
     db1.commit()
+
+
+def update_klient(klient):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'UPDATE {TABELA_KLIENT} SET name=%s, forname=%s, city=%s, street=%s, email=%s, phone=%s  WHERE klient_no = {klient.id}'
+    val = (klient.imie, klient.nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
+
+    cursor1.execute(sql, val)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
+def load_klient(klient_id, klient_obiekt):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT * FROM {TABELA_KLIENT} WHERE klient_no = {klient_id}'
+    cursor1.execute(sql)
+    myresult = cursor1.fetchall()
+    if len(myresult) == 1:
+        klient_obiekt.laduj_z_tablicy(myresult[0])
+        print(klient_obiekt)
+        return True
+    else:
+        return False
+
+
+def delete_klient(klient_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'DELETE FROM {TABELA_KLIENT} WHERE klient_no = {klient_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+# ---- tablica impreza ---------
 
 def add_impreza(impreza):
     db1 = init_database()

@@ -1,5 +1,5 @@
 from tkinter import *
-from BaseEntry import *
+from BaseDialog import *
 from KlientDef import *
 from tkinter import messagebox
 
@@ -12,6 +12,8 @@ class KlientForm(BaseForm):
 
         self.klient = klient
         self.event = event
+        self._nowy = nowy
+
         # varables
         self._varImie = tk.StringVar()
         self._varNazwisko = tk.StringVar()
@@ -24,7 +26,6 @@ class KlientForm(BaseForm):
         super().__init__(parent)
         self.title('Klient')
 
-        self._nowy = nowy
         if not nowy:
             self._set_klient(klient)
 
@@ -33,8 +34,11 @@ class KlientForm(BaseForm):
 
     # metoda wywoływana z obiektu przodka, gdy już jest gotowy układ ramek
     def _add_edit_items(self, frame):
-        self._add_edit_item(frame, "Imię", self._varImie)
-        self._add_edit_item(frame, "Nawisko", self._varNazwisko)
+        imieEdit = self._add_edit_item(frame, "Imię", self._varImie)
+        NazwiskoEdit = self._add_edit_item(frame, "Nawisko", self._varNazwisko)
+        if not self._nowy:
+            imieEdit.config(state="disabled")
+            NazwiskoEdit.config(state="disabled")
         self._add_edit_item(frame, "Miejscowość", self._varMiejscowosc)
         self._add_edit_item(frame, "Adres", self._varAdres)
         self._add_edit_item(frame, "email", self._varEmail)
@@ -60,6 +64,7 @@ class KlientForm(BaseForm):
         tmpKlient = Klient()
         try:
             # najpierw do obiektu tymczasowego aby sprawdzić czy dane są ok
+            tmpKlient.id = self.klient.id
             tmpKlient.imie = self._varImie.get()
             tmpKlient.nazwisko = self._varNazwisko.get()
             tmpKlient.miejscowosc = self._varMiejscowosc.get()
