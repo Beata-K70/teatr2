@@ -1,9 +1,12 @@
 # --------------------------------------------------------
 # pip install mysql-connector-python
+#
+
+
 import config
 import mysql.connector
 from mysql.connector import errorcode
-
+import KlientDef
 
 
 def init_database():
@@ -12,7 +15,8 @@ def init_database():
             host="localhost",
             user=config.DATABASE_USER,
             password=config.DATABASE_USER_PASSWD,
-            database=config.TEATR_DATABASE_NAME
+            database=config.TEATR_DATABASE_NAME,
+            buffered=True,
         )
     except  Exception as ex:
         if ex.errno == errorcode.ER_BAD_DB_ERROR:
@@ -21,73 +25,120 @@ def init_database():
                 host="localhost",
                 user=config.DATABASE_USER,
                 password=config.DATABASE_USER_PASSWD,
+                buffered=True,
             )
-            mycursor = mydb.cursor()
-            print("DB:", mycursor)
-            sql_txt = "CREATE DATABASE " + config.TEATR_DATABASE_NAME
-            mycursor.execute(sql_txt)
+            create_database(mydb.cursor())
+
         else:
             print("Bląd inicjalizacji bazy danych:", ex)
 
     return mydb
 
 
-def init_database2():
+def create_database(cursor):
     try:
-        mydb = mysql.connector.connect(
-            host="localhost",
-            user=config.DATABASE_USER,
-            password=config.DATABASE_USER_PASSWD,
-        )
-        mycursor = mydb.cursor()
+        print("DB:", cursor)
+        sql_txt = "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(config.TEATR_DATABASE_NAME)
+        cursor.execute(sql_txt)
 
-        mycursor.execute("SHOW DATABASES")
-        fnd = False
-        for x in mycursor:
-            if x[0] == config.TEATR_DATABASE_NAME:
-                fnd = True;
-                break;
-        if fnd:
-            mydb.close();
-            mydb = mysql.connector.connect(
-                host="localhost",
-                user=config.DATABASE_USER,
-                password=config.DATABASE_USER_PASSWD,
-                database=config.TEATR_DATABASE_NAME
-            )
-        else:
-            print("Brak bazy danych. Zakładam nową.")
-            mycursor.execute("CREATE DATABASE " + config.TEATR_DATABASE_NAME)
-        return mydb
-    except  Exception as ex:
-        print("Bląd inicjalizacji bazy danych:", ex)
-        return None
+    except mysql.connector.Error as err:
+        print("Failed creating database: {}".format(err))
+        exit(1)
+
 
 TABELA_IMPREZ = "imprezy"
-#https://dev.mysql.com/doc/connector-python/en/connector-python-example-cursor-transaction.html
+TABELA_KLIENT = "klienci"
+TABELA_BILETOW = "bilety"
 
-def init_tabele(mycurcor):
-    m = mycurcor.execute("SHOW TABLES")
-    Fnd = False
-    for x in mycursor:
-        if x[0] == TABELA_IMPREZ:
-            Fnd = True
-            break
+TABLES = {}
+TABLES['klienci'] = (
+    "CREATE TABLE `klienci` ("
+    "  `klient_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
+    "  `name` varchar(60) NOT NULL,"
+    "  `city` varchar(60),"
+    "  `street` varchar(60),"
+    "  `email`  varchar(60),"
+    "  `phone`  varchar(20),"
+    "  PRIMARY KEY (`klient_no`)"
+    ") ENGINE=InnoDB")
 
-    print(mycurcor.stored_results())
-    if not Fnd:
-        print("Dodaje tabele:", TABELA_IMPREZ)
-        mycursor.execute("CREATE TABLE " + TABELA_IMPREZ + " (name VARCHAR(255), address VARCHAR(255))")
+TABLES['imprezy'] = (
+    "CREATE TABLE `imprezy` ("
+    "  `impreza_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
+    "  `nazwa` varchar(60) NOT NULL,"
+    "  `date` date NOT NULL,"
+    "  `sala` varchar(10) NOT NULL,"
+    "  PRIMARY KEY (`impreza_no`), UNIQUE KEY `nazwa` (`nazwa`)"
+    ") ENGINE=InnoDB")
+
+TABLES['bilety'] = (
+    "CREATE TABLE `bilety` ("
+    "  `bilet_no` int(11) NOT NULL,"
+    "  `impreza_no` int(11) NOT NULL,"
+    "  `klient_no` int(11) NOT NULL,"
+    "  `place` varchar(10) NOT NULL,"
+    "  PRIMARY KEY (`bilet_no`),"
+    "  CONSTRAINT fk_impreza FOREIGN KEY (impreza_no) REFERENCES imprezy(impreza_no),"
+    "  CONSTRAINT fk_klient FOREIGN KEY (klient_no) REFERENCES klienci(klient_no)"
+    ") ENGINE=InnoDB")
 
 
-print("\n\n------Teatr-------")
+#    "  FOREIGN KEY ('klientimprez_no') REFERENCES imprezy(imprez_no),"
 
-mydb = init_database()
-mycursor = mydb.cursor()
 
-init_tabele(mycursor)
+# https://dev.mysql.com/doc/connector-python/en/connector-python-example-cursor-transaction.html
 
-mycursor.execute("SHOW DATABASES")
 
-for x in mycursor:
-    print(x)
+def init_tabele(cursor):
+    for table_name in TABLES:
+        table_description = TABLES[table_name]
+        try:
+            print("Dodaje tabele {}: ".format(table_name), end='')
+            cursor.execute(table_description)
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print("already exists.")
+            else:
+                print(err.msg)
+        else:
+            print("OK")
+
+
+def init_db():
+    mydb = init_database()
+    if mydb is not None:
+        my_cursor = mydb.cursor()
+        init_tabele(my_cursor)
+        init_database()
+        init_tabele()
+        return True
+    return False
+
+
+def add_klient(klient):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+
+    sql = f'INSERT INTO {TABELA_KLIENT} (name, city, street, email, phone) VALUES (%s, %s, %s, %s, %s)'
+    val = (klient.imie_nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
+    cursor1.execute(sql, val)
+    db1.commit()
+
+
+def load_klints():
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    cursor1.execute(f"SELECT * FROM {TABELA_KLIENT}")
+    myresult = cursor1.fetchall()
+    return myresult
+
+
+# ---Test----------------------------------
+if __name__ == "__main__":
+    print("\n\n------Teatr-------")
+
+    mydb = init_database()
+    my_cursor = mydb.cursor()
+    init_tabele(my_cursor)
+
+    my_cursor.execute("SHOW TABLES")
