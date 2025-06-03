@@ -23,8 +23,11 @@ class KlientForm(BaseForm):
         self._varEmail = tk.StringVar()
         self._varTelefon = tk.StringVar()
 
-        super().__init__(parent)
-        self.title('Klient')
+        super().__init__(parent, "wao")
+        if self._nowy:
+            self.title('Nowy klient')
+        else:
+            self.title('Edytuj klienta')
 
         if not nowy:
             self._set_klient(klient)

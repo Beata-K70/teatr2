@@ -31,7 +31,7 @@ class Klient:
         self._email = zrodlo._email
         self.telefon = zrodlo.telefon
 
-    def laduj_z_tablicy(self,tab):
+    def laduj_z_tablicy(self, tab):
         self.id = tab[0]
         self._imie = tab[1]
         self._nazwisko = tab[2]
@@ -39,6 +39,14 @@ class Klient:
         self.adres = tab[4]
         self._email = tab[5]
         self.telefon = tab[6]
+
+    def daj_jako_tablica(self):
+        return (self.imie,  # świadomie pomijam 'id'
+                self.nazwisko,
+                self.miejscowosc,
+                self.adres,
+                self.email,
+                self.telefon)
 
     @property
     def imie(self):

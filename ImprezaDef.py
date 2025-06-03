@@ -29,7 +29,7 @@ class Impreza:
         self._sala = zrodlo._sala
         self._cena = zrodlo._cena
 
-    def laduj_z_tablicy(self,tab):
+    def laduj_z_tablicy(self, tab):
         self.id = tab[0]
         self._nazwa = tab[1]
         self._data = tab[2]
@@ -39,6 +39,27 @@ class Impreza:
         self._cena[2] = tab[6]
         self._cena[3] = tab[7]
 
+    def daj_jako_tablica(self):
+        return (self.nazwa,
+                self.data,
+                self.sala,
+                self.cena[0],
+                self.cena[1],
+                self.cena[2],
+                self.cena[3])
+
+
+    def daj_cene(self, kategoria):
+        if kategoria == 'A':
+            return self._cena[0]
+        elif kategoria == 'B':
+            return self._cena[1]
+        elif kategoria == 'C':
+            return self._cena[2]
+        elif kategoria == 'D':
+            return self._cena[3]
+        else:
+            raise Exception("Nieznana kategoria:", kategoria)
 
     @property
     def nazwa(self):
@@ -90,7 +111,7 @@ class Impreza:
         if len(cena) == 4:
             ok = True
             for v in cena:
-                ok &= isinstance(v, float)  & (v >= 0.0)
+                ok &= isinstance(v, (float,int)) & (v >= 0.0)
         if not ok:
             raise Exception("Niepoprawny format pola 'cena'")
         self._cena = cena

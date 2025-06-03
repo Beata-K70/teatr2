@@ -3,8 +3,10 @@ import tkinter.font as tkFont
 from tkinter import ttk
 from tkinter import messagebox
 
+import BiletDef
 import KlientDialog
 import ImprezaDialog
+import SalaDef
 import TeatrDB
 
 from KlientDef import *
@@ -156,7 +158,6 @@ class TeatrApp:
 
     #  --- klient list_box --------
 
-
     def handleRightClick_klient_list_box(self, event):
         focused = self.klient_lista_box.focus()
         if focused == "":
@@ -259,6 +260,7 @@ class TeatrApp:
         self._impreza_context_menu = tk.Menu(self.window, tearoff=0, )
         self._impreza_context_menu.add_command(label="Kup bilet na impreze", command=self.lista_kup_bilet)
         self._impreza_context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
+        self._impreza_context_menu.add_command(label="Policz bilety", command=self.lista_policz_bilety_z_imprezy)
         self._impreza_context_menu.add_separator()
         self._impreza_context_menu.add_command(label="Edytuj", command=self.lista_edytuj_impreza)
         self._impreza_context_menu.add_command(label="Usuń", command=self.lista_usun_impreza)
@@ -296,6 +298,14 @@ class TeatrApp:
         else:
             return -1
 
+    def policz_bilety_z_imprezy(self):
+        impreza_id = self.get_selected_impreza_z_listy()
+        if impreza_id > 0:
+            ilosc = TeatrDB.policz_bilety_z_imprezy(impreza_id)
+            tmp_impreza = Impreza()
+            if TeatrDB.load_impreza(impreza_id, tmp_impreza):
+                messagebox.showinfo(title=f'Impreza : {tmp_impreza.nazwa}, data: {tmp_impreza.data}',
+                                    message=f'Ilość miejsc: {ilosc}')
 
     def edytuj_impreza(self):
         impreza_id = self.get_selected_impreza_z_listy()
@@ -311,9 +321,26 @@ class TeatrApp:
                 impreza_info = f' {tmp_impreza.nazwa} z dnia {tmp_impreza.data} '
                 txt = f'Czy chcesz usunść imprezę {impreza_info} ?'
                 if messagebox.askyesno(title="Usuwanie imprezy", message=txt):
-                    if not TeatrDB.delete_impreza(tmp_impreza.id):
+                    if not TeatrDB.usun_impreza(tmp_impreza.id):
                         messagebox.showinfo(title="Error", message=f'Błąd usunięcia imprezy {impreza_info} ')
         self.reload_list_imprez()
+
+    def dodaj_impreza(self):
+        nazwa_sali = self.impreza.sala;
+        sala = SalaDef.Sala(nazwa_sali)
+        ilosc_biletow = sala.getj_suma_krzesel()
+        txt = f' Czy chcesz dodać imprezę  "{self.impreza.nazwa}" w dnia {self.impreza.data}\n Sala: {self.impreza.sala}, ilość biletów: {ilosc_biletow} ?'
+        if messagebox.askyesno(title="Dodawanie imprezy", message=txt):
+            TeatrDB.add_impreza(self.impreza)
+            TeatrDB.load_impreza(self.impreza.id, self.impreza)  # aktualizacja impreza.id
+            lista_krzesel = sala.buduj_lista_krzesel()
+            for krzeslo in lista_krzesel:
+                bilet = BiletDef.Bilet.daj_wypelniony(krzeslo, self.impreza)
+                TeatrDB.dodaj_bilet(bilet)
+            self.reload_list_imprez()
+
+    def lista_policz_bilety_z_imprezy(app):
+        app.policz_bilety_z_imprezy()
 
     def lista_edytuj_impreza(app):
         app.edytuj_impreza()
@@ -325,15 +352,12 @@ class TeatrApp:
         app = sv[0]
         ev_val = app.evImpreza.get()
         if ev_val == ImprezaDialog.ImprezaForm.NEW_IMPREZA:
-            TeatrDB.add_impreza(app.impreza)
-            app.reload_list_imprez()
+            app.dodaj_impreza()
         if ev_val == ImprezaDialog.ImprezaForm.UPDATE_IMPREZA:
             TeatrDB.update_impreza(app.impreza)
             app.reload_list_imprez()
 
     # ----------------------------------------------------------
-
-
 
     def make_active(app):
         app.redbutton.config(state="active")

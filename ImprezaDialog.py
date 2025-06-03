@@ -62,7 +62,7 @@ class ImprezaForm(BaseForm):
     def _set_impreza(self, impreza):
         self._varNazwa.set(impreza.nazwa)
         self._varData.set(impreza.data.strftime(ImprezaDef.DATE_FORMAT))
-        self._varSala.set(impreza.sala)
+        self._varSala.set(impreza._sala)
         self._varCenaA.set(impreza.cena[0])
         self._varCenaB.set(impreza.cena[1])
         self._varCenaC.set(impreza.cena[2])

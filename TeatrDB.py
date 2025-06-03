@@ -1,12 +1,12 @@
 # --------------------------------------------------------
 # pip install mysql-connector-python
 #
-
-
 import config
 import mysql.connector
 from mysql.connector import errorcode
 import KlientDef
+import ImprezaDef
+import BiletDef
 
 
 def init():
@@ -53,8 +53,8 @@ def create_database(cursor):
         exit(1)
 
 
-TABELA_IMPREZ = "imprezy"
 TABELA_KLIENT = "klienci"
+TABELA_IMPREZ = "imprezy"
 TABELA_BILETOW = "bilety"
 
 TABLES = {}
@@ -75,7 +75,7 @@ TABLES['imprezy'] = (
     "  `impreza_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
     "  `nazwa` varchar(60) NOT NULL,"
     "  `date` date NOT NULL,"
-    "  `sala` varchar(10) NOT NULL,"
+    "  `sala` varchar(16) NOT NULL,"
     "  `cena_a` float,"
     "  `cena_b` float,"
     "  `cena_c` float,"
@@ -85,17 +85,17 @@ TABLES['imprezy'] = (
 
 TABLES['bilety'] = (
     "CREATE TABLE `bilety` ("
-    "  `bilet_no` int(11) NOT NULL,"
-    "  `impreza_no` int(11) NOT NULL,"
-    "  `klient_no` int(11) NOT NULL,"
-    "  `place` varchar(10) NOT NULL,"
+    "  `bilet_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
+    "  `kategoria` varchar(8),"
+    "  `rzad` int(11),"
+    "  `miejsce` int(11),"
+    "  `cena` float,"
+    "  `impreza_no` int(11) NOT NULL  UNIQUE KEY,"
+    "  `klient_no` int(11) NOT NULL  UNIQUE KEY,"
     "  PRIMARY KEY (`bilet_no`),"
     "  CONSTRAINT fk_impreza FOREIGN KEY (impreza_no) REFERENCES imprezy(impreza_no),"
     "  CONSTRAINT fk_klient FOREIGN KEY (klient_no) REFERENCES klienci(klient_no)"
     ") ENGINE=InnoDB")
-
-
-#    "  FOREIGN KEY ('klientimprez_no') REFERENCES imprezy(imprez_no),"
 
 
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-cursor-transaction.html
@@ -134,7 +134,7 @@ def add_klient(klient):
     cursor1 = db1.cursor()
 
     sql = f'INSERT INTO {TABELA_KLIENT} (name, forname, city, street, email, phone) VALUES (%s, %s, %s, %s, %s, %s)'
-    val = (klient.imie, klient.nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
+    val = klient.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
 
@@ -143,8 +143,7 @@ def update_klient(klient):
     db1 = init_database()
     cursor1 = db1.cursor()
     sql = f'UPDATE {TABELA_KLIENT} SET name=%s, forname=%s, city=%s, street=%s, email=%s, phone=%s  WHERE klient_no = {klient.id}'
-    val = (klient.imie, klient.nazwisko, klient.miejscowosc, klient.adres, klient.email, klient.telefon)
-
+    val = klient.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
     return cursor1.rowcount == 1
@@ -188,7 +187,7 @@ def add_impreza(impreza):
     cursor1 = db1.cursor()
 
     sql = f'INSERT INTO {TABELA_IMPREZ} (nazwa, date, sala, cena_a, cena_b,cena_c,cena_d) VALUES (%s, %s, %s, %s, %s, %s, %s)'
-    val = (impreza.nazwa, impreza.data, impreza.sala, impreza.cena[0], impreza.cena[1], impreza.cena[2], impreza.cena[3])
+    val = impreza.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
 
@@ -205,7 +204,7 @@ def update_impreza(impreza):
     db1 = init_database()
     cursor1 = db1.cursor()
     sql = f'UPDATE {TABELA_IMPREZ} SET nazwa=%s, date=%s, sala=%s, cena_a=%s, cena_b=%s,cena_c=%s,cena_d=%s  WHERE impreza_no = {impreza.id}'
-    val = (impreza.nazwa, impreza.data, impreza.sala, impreza.cena[0], impreza.cena[1], impreza.cena[2], impreza.cena[3])
+    val = impreza.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
     return cursor1.rowcount == 1
@@ -219,13 +218,12 @@ def load_impreza(impreza_id, impreza_obiekt):
     myresult = cursor1.fetchall()
     if len(myresult) == 1:
         impreza_obiekt.laduj_z_tablicy(myresult[0])
-        print(impreza_obiekt)
         return True
     else:
         return False
 
 
-def delete_impreza(impreza_id):
+def usun_impreza(impreza_id):
     db1 = init_database()
     cursor1 = db1.cursor()
     sql = f'DELETE FROM {TABELA_IMPREZ} WHERE impreza_no = {impreza_id}'
@@ -234,14 +232,86 @@ def delete_impreza(impreza_id):
     return cursor1.rowcount == 1
 
 
+# ---- tablica biletow ---------
+
+def dodaj_bilet(bilet):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+
+    sql = f'INSERT INTO {TABELA_BILETOW} (kategoria, rzad, miejsce, cena, impreza_no, klient_no) VALUES (%s, %s, %s, %s, %s, %s)'
+    val = bilet.daj_jako_tablica()
+    cursor1.execute(sql, val)
+    db1.commit()
+
+
+def podmien_bilet(bilet):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'UPDATE {TABELA_BILETOW} SET kategoria=%s, rzad=%s, miejsce=%s, cena=%s, impreza_no=%s, klient_no=%s  WHERE bilet_no = {bilet.id}'
+    val = bilet.daj_jako_tablica()
+    cursor1.execute(sql, val)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
+def usun_bilet(bilet_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'DELETE FROM {TABELA_BILETOW} WHERE bilet_no = {bilet_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
+def usun_bilety_z_imprezy(impreza_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'DELETE FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
+def policz_bilety_z_imprezy(impreza_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT COUNT(*) FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
 # ---Test----------------------------------
-if __name__ == "__main__":
+
+def _test():
     print("\n\n------Teatr-------")
 
     mydb = init_database()
     my_cursor = mydb.cursor()
     init_tabele(my_cursor)
 
-    lista = load_klints()
-    for x in lista:
-        print(x)
+    klient = KlientDef.Klient()
+    klient.imie = 'Adam'
+    klient.nazwisko = 'Nowak'
+    klient.email = 'adam@wp.pl'
+    add_klient(klient)
+
+    impreza = ImprezaDef.Impreza()
+    impreza.nazwa = 'TSA2'
+    impreza.setDateAsStr = '1.1.2026'
+    impreza.sala = "Głowna"
+    impreza.cena = [10, 9, 8, 4]
+    add_impreza(impreza)
+
+    bilet = BiletDef.Bilet()
+    bilet.kategoria = 'A'
+    bilet.rzad = 1
+    bilet.miejsce = 2
+    bilet.cena = 24
+    bilet.impreza_id = 1
+    bilet.klient_id = 1
+    dodaj_bilet(bilet)
+
+
+if __name__ == "__main__":
+    _test()

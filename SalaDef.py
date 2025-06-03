@@ -18,43 +18,50 @@ D - krzesło kategori D
 """
 
 # definicja dostepnych sal
-sala_glowna = {"nazwa": "Główna",
-               "krzesla": ["AAAAAAAA",
-                           "AAAAAAAA",
+_sala_glowna = {"nazwa": "Główna",
+               "krzesla": ["AAAAAAAA",  # rząd 1
+                           "AAAAAAAA",  # rząd 2
                            "BBAAAABB",
                            "CCCBBCC",
                            "DDDCCAADDDD"]}
 
-sala_mala = {"nazwa": "Mała",
+_sala_mala = {"nazwa": "Mała",
              "krzesla": ["AAAA",
                          "BBBBBB",
                          "CCCCCCC",
                          "DDDDDDDD"]}
 
-sala_elita = {"nazwa": "Elita",
+_sala_elita = {"nazwa": "Elita",
               "krzesla": ["AAAA",
                           "AAAA",
                           "AAAA",
                           "AAAA"]}
 
-lista_sal = [sala_glowna, sala_mala, sala_elita]
+_lista_sal = [_sala_glowna, _sala_mala, _sala_elita]
 
 
 class Krzeslo:
     def __init__(self, kategoria, rzad, miejsce):
-        self.kategoria = kategoria
+        self.kategoria = kategoria  # A, B, C, D
         self.rzad = rzad
         self.miejsce = miejsce
 
     def __str__(self):
         return f'R{self.rzad}M{self.miejsce}:{self.kategoria}'
 
+    def kopia(self):
+        nowy = Krzeslo()
+        nowy.kategoria = self.kategoria
+        nowy.rzad = self.rzad
+        nowy.miejsce = self.miejsce
+        return nowy
+
 
 class Sala:
     def __init__(self, nazwa):
         fnd = False
         self._krzesla = []
-        for x in lista_sal:
+        for x in _lista_sal:
             if nazwa == x["nazwa"]:
                 fnd = True
                 self._krzesla = x["krzesla"]
@@ -102,13 +109,13 @@ class Sala:
 
 def get_liste_sal():
     lista = []
-    for x in lista_sal:
+    for x in _lista_sal:
         lista.append(x["nazwa"])
     return lista
 
 
 # ---Test----------------------------------
-if __name__ == "__main__":
+def _test():
     print("\n\n------Sala-------")
     print(get_liste_sal())
     sala = Sala("Główna")
@@ -121,3 +128,7 @@ if __name__ == "__main__":
 
     for x in list_krzesel:
         print(x)
+
+if __name__ == "__main__":
+    _test()
+

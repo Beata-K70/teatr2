@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 
+
 class BaseForm(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, parent, buttons="wao"):
         super().__init__(parent)  # *args, **kwargs)
 
         self._set_center_position(parent)
@@ -14,10 +15,9 @@ class BaseForm(tk.Toplevel):
         self.grid_columnconfigure(0, weight=1)
         self.positionfrom()
 
+        self._create_widgets(buttons)
 
-        self._create_widgets()
-
-    def _create_widgets(self):
+    def _create_widgets(self, buttons):
         middle = tk.Frame(self)  # , background='silver')
         middle.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
         middle.grid_columnconfigure(0, weight=1)
@@ -29,14 +29,16 @@ class BaseForm(tk.Toplevel):
 
         # ---
         self._add_edit_items(middle)
-
         # ---
-        ok_btn = tk.Button(bottom_fr, text="OK", command=self._ok_btn_click)
-        ok_btn.pack(side=tk.RIGHT, padx=5)
-        anuluj_btn = tk.Button(bottom_fr, text="Anuluj", command=self._anuluj_btn_click)
-        anuluj_btn.pack(side=tk.RIGHT, padx=5)
-        clear_btn = tk.Button(bottom_fr, text="Wyczyść", command=self._clear_btn_click)
-        clear_btn.pack(side=tk.RIGHT, padx=5)
+        if 'o' in buttons:
+            ok_btn = tk.Button(bottom_fr, text="OK", command=self._ok_btn_click)
+            ok_btn.pack(side=tk.RIGHT, padx=5)
+        if 'a' in buttons:
+            anuluj_btn = tk.Button(bottom_fr, text="Anuluj", command=self._anuluj_btn_click)
+            anuluj_btn.pack(side=tk.RIGHT, padx=5)
+        if 'w' in buttons:
+            clear_btn = tk.Button(bottom_fr, text="Wyczyść", command=self._clear_btn_click)
+            clear_btn.pack(side=tk.RIGHT, padx=5)
 
     def _add_edit_item(self, parent, caption, var):
         item_fr = tk.Frame(parent)  # , background='blue')
@@ -48,14 +50,13 @@ class BaseForm(tk.Toplevel):
         return entry
 
     def _add_combobox_item(self, parent, caption, item_list, var):
-        item_fr = tk.Frame(parent )# , background='blue')
+        item_fr = tk.Frame(parent)  # , background='blue')
         item_fr.grid(sticky=tk.EW)
         label = tk.Label(item_fr, text=caption + ':', width=14, anchor="e")
         label.pack(side=tk.LEFT, padx=5)
-        combo = ttk.Combobox(item_fr, width=30, textvariable=var,     state="readonly",    values=item_list)
+        combo = ttk.Combobox(item_fr, width=30, textvariable=var, state="readonly", values=item_list)
         combo.pack(side=tk.LEFT, padx=5)
         return combo
-
 
     def _set_center_position(self, main_w):
         x = main_w.winfo_x()
