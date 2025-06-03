@@ -56,10 +56,10 @@ class ImprezaForm(BaseForm):
         self._varNazwa.set("")
         self._varData.set("")
         self._varSala.set("")
-        self._varCenaA.set("40")
-        self._varCenaB.set("30")
-        self._varCenaC.set("20")
-        self._varCenaD.set("10")
+        self._varCenaA.set("")
+        self._varCenaB.set("")
+        self._varCenaC.set("")
+        self._varCenaD.set("")
 
     def _set_impreza(self, impreza):
         self._varNazwa.set(impreza.nazwa)

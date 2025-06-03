@@ -17,7 +17,7 @@ class ListaBiletowForm(BaseForm):
 
         super().__init__(parent, buttons="o", top_most=False, resizable=True)
 
-        self.title(f'Lista biletów:{impreza.nazwa} w dniu {impreza.data}')
+        self.title(f'Impreza:{impreza.nazwa} w dniu {impreza.data}')
 
     def _get_form_size(self):
         return [480, 400]  # width x height
@@ -60,7 +60,7 @@ class KupBiletForm(BaseForm):
         self._varKlient = tk.StringVar()
 
         super().__init__(parent, buttons="ao", top_most=False, resizable=True)
-        self.title(f'Lista biletów:{impreza.nazwa} w dniu {impreza.data}')
+        self.title(f'Impreza:{impreza.nazwa} w dniu {impreza.data}')
 
     def _get_form_size(self):
         return [480, 400]  # width x height
@@ -72,7 +72,7 @@ class KupBiletForm(BaseForm):
 
     def _add_edit_items(self, frame):
         lista_klientow = TeatrDB.load_klients_human_mode()
-        combo = self._add_combobox_item(frame, "Sala", lista_klientow, self._varKlient)
+        combo = self._add_combobox_item(frame, "Klient:", lista_klientow, self._varKlient)
         combo.pack(side=tk.LEFT, pady=10)
         self._list_box = self._add_list(frame, self.bilety_header)
         frame.grid_rowconfigure(1, weight=1)

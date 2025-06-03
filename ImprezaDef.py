@@ -78,7 +78,7 @@ class Impreza:
 
     @data.setter
     def data(self, data):
-        if data > date.today():
+        if data > datetime.now():
             self._data = data
         else:
             raise Exception("Niepoprawna data imprezy. Nie można ustawić daty do tyłu")
@@ -88,7 +88,7 @@ class Impreza:
             dt = datetime.strptime(data_str, DATE_FORMAT)
         except Exception as e:
             raise Exception(f'Niepoprawna data imprezy. Wprowadź w formacie dd.mm.rrrr [{e}]')
-        data = dt;
+        self.data = dt
 
     @property
     def sala(self):
