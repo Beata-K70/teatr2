@@ -43,3 +43,33 @@ class Bilet:
                 self.cena,
                 self.impreza_id,
                 self.klient_id)
+
+
+    bilety_header = ['id', 'Kategoria', 'Miejsce', 'Cena', "IdKlienta"]
+
+    def daj_jako_text_tab(self):
+        return (str(self.id),
+                self.kategoria,
+                f'R{self.rzad}M{self.miejsce}',
+                str(self.cena),
+                str(self.klient_id))
+
+
+# ---------------------------------
+
+class Zakup:
+    def __init__(self):
+        self.lista = []
+        self.klient_id = 0
+        self.klient_nazwa = ""
+        self.impreza_id = 0
+
+    def __str__(self):
+        txt = f'IMP={self.impreza_id},  {self.klient_nazwa} id={self.klient_id}, :'
+        for p in self.lista:
+            if txt != "":
+                txt = txt + ' '
+            txt = txt + f'R{p[0]}-M{p[1]}'
+        return txt
+
+

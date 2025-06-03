@@ -1,15 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as tkFont
 
 
 class BaseForm(tk.Toplevel):
-    def __init__(self, parent, buttons="wao"):
+    def __init__(self, parent, buttons="wao", top_most=True, resizable=False):
         super().__init__(parent)  # *args, **kwargs)
 
         self._set_center_position(parent)
-        self.attributes('-topmost', 'true')
-        #        self.resizable = False
-        self.resizable(False, False)
+        if top_most:
+            self.attributes('-topmost', 'true')
+        self.resizable(resizable, resizable)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -18,9 +19,10 @@ class BaseForm(tk.Toplevel):
         self._create_widgets(buttons)
 
     def _create_widgets(self, buttons):
-        middle = tk.Frame(self)  # , background='silver')
-        middle.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-        middle.grid_columnconfigure(0, weight=1)
+        self.middle = tk.Frame(self) # background='silver')
+        self.middle.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        self.middle.grid_columnconfigure(0, weight=1)
+        self.middle.grid_rowconfigure(0, weight=0)
 
         bottom_fr = tk.Frame(self)  # , background='yellow')
         bottom_fr.grid(row=1, column=0, padx=5, pady=5, columnspan=2, sticky=tk.NSEW)
@@ -28,7 +30,7 @@ class BaseForm(tk.Toplevel):
         bottom_fr.grid_columnconfigure(0, weight=0)
 
         # ---
-        self._add_edit_items(middle)
+        self._add_edit_items(self.middle)
         # ---
         if 'o' in buttons:
             ok_btn = tk.Button(bottom_fr, text="OK", command=self._ok_btn_click)
@@ -57,6 +59,16 @@ class BaseForm(tk.Toplevel):
         combo = ttk.Combobox(item_fr, width=30, textvariable=var, state="readonly", values=item_list)
         combo.pack(side=tk.LEFT, padx=5)
         return combo
+
+    def _add_list(self, parent, headers):
+        lista_box = ttk.Treeview(master=parent, columns=headers, show="headings")
+        lista_box.grid(sticky=tk.NSEW)
+        for col in headers:
+            title = col.title()
+            lista_box.heading(col, text=title)
+            w = int(1.5 * tkFont.Font().measure(title))
+            lista_box.column(col, width=w)
+        return lista_box
 
     def _set_center_position(self, main_w):
         x = main_w.winfo_x()

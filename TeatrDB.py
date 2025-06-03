@@ -55,9 +55,9 @@ def create_database(cursor):
         exit(1)
 
 
-TABELA_KLIENT = "klienci"
-TABELA_IMPREZ = "imprezy"
-TABELA_BILETOW = "bilety"
+TB_KLIENT = "klienci"
+TB_IMPREZA = "imprezy"
+TB_BILET = "bilety"
 
 TABLES = {}
 TABLES['klienci'] = (
@@ -140,12 +140,12 @@ def add_klient(klient):
     db1 = init_database()
     cursor1 = db1.cursor()
 
-    sql = f'INSERT INTO {TABELA_KLIENT} (name, forname, city, street, email, phone) VALUES (%s, %s, %s, %s, %s, %s)'
+    sql = f'INSERT INTO {TB_KLIENT} (name, forname, city, street, email, phone) VALUES (%s, %s, %s, %s, %s, %s)'
     val = klient.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
 
-    cursor1.execute(f"SELECT klient_no FROM {TABELA_KLIENT} WHERE klient_no=LAST_INSERT_ID()")
+    cursor1.execute(f"SELECT klient_no FROM {TB_KLIENT} WHERE klient_no=LAST_INSERT_ID()")
     myresult = cursor1.fetchall()
     klient.id = myresult[0][0]
     # print('impreza.id=',impreza.id)
@@ -154,7 +154,7 @@ def add_klient(klient):
 def update_klient(klient):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'UPDATE {TABELA_KLIENT} SET name=%s, forname=%s, city=%s, street=%s, email=%s, phone=%s  WHERE klient_no = {klient.id}'
+    sql = f'UPDATE {TB_KLIENT} SET name=%s, forname=%s, city=%s, street=%s, email=%s, phone=%s  WHERE klient_no = {klient.id}'
     val = klient.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
@@ -164,7 +164,7 @@ def update_klient(klient):
 def load_klient(klient_id, klient_obiekt):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'SELECT * FROM {TABELA_KLIENT} WHERE klient_no = {klient_id}'
+    sql = f'SELECT * FROM {TB_KLIENT} WHERE klient_no = {klient_id}'
     cursor1.execute(sql)
     myresult = cursor1.fetchall()
     if len(myresult) == 1:
@@ -178,7 +178,7 @@ def load_klient(klient_id, klient_obiekt):
 def delete_klient(klient_id):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'DELETE FROM {TABELA_KLIENT} WHERE klient_no = {klient_id}'
+    sql = f'DELETE FROM {TB_KLIENT} WHERE klient_no = {klient_id}'
     cursor1.execute(sql)
     db1.commit()
     return cursor1.rowcount == 1
@@ -187,9 +187,33 @@ def delete_klient(klient_id):
 def load_klints():
     db1 = init_database()
     cursor1 = db1.cursor()
-    cursor1.execute(f"SELECT * FROM {TABELA_KLIENT} WHERE klient_no<>{PUSTY_KLIENT}")
+    cursor1.execute(f"SELECT * FROM {TB_KLIENT} WHERE klient_no<>{PUSTY_KLIENT}")
     myresult = cursor1.fetchall()
     return myresult
+
+
+def load_klients_human_mode():
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    cursor1.execute(f"SELECT * FROM {TB_KLIENT} WHERE klient_no<>{PUSTY_KLIENT}")
+    myresult = cursor1.fetchall()
+    lista_czytelna = []
+    for k in myresult:
+        lista_czytelna.append(f'{k[1]} {k[2]}')
+    return lista_czytelna
+
+
+def get_klient_id_by_human_name(name):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    cursor1.execute(f"SELECT * FROM {TB_KLIENT} WHERE klient_no<>{PUSTY_KLIENT}")
+    myresult = cursor1.fetchall()
+    lista_czytelna = []
+    for k in myresult:
+        item_name = f'{k[1]} {k[2]}'
+        if item_name == name:
+            return int(k[0])
+    return -1
 
 
 # ---- tablica impreza ---------
@@ -198,12 +222,12 @@ def add_impreza(impreza):
     db1 = init_database()
     cursor1 = db1.cursor()
 
-    sql = f'INSERT INTO {TABELA_IMPREZ} (nazwa, date, sala, cena_a, cena_b,cena_c,cena_d) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+    sql = f'INSERT INTO {TB_IMPREZA} (nazwa, date, sala, cena_a, cena_b,cena_c,cena_d) VALUES (%s, %s, %s, %s, %s, %s, %s)'
     val = impreza.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
 
-    cursor1.execute(f"SELECT impreza_no FROM {TABELA_IMPREZ} WHERE impreza_no=LAST_INSERT_ID()")
+    cursor1.execute(f"SELECT impreza_no FROM {TB_IMPREZA} WHERE impreza_no=LAST_INSERT_ID()")
     myresult = cursor1.fetchall()
     impreza.id = myresult[0][0]
     # print('impreza.id=',impreza.id)
@@ -212,7 +236,7 @@ def add_impreza(impreza):
 def load_imprezy():
     db1 = init_database()
     cursor1 = db1.cursor()
-    cursor1.execute(f"SELECT * FROM {TABELA_IMPREZ}")
+    cursor1.execute(f"SELECT * FROM {TB_IMPREZA}")
     myresult = cursor1.fetchall()
     return myresult
 
@@ -220,7 +244,7 @@ def load_imprezy():
 def update_impreza(impreza):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'UPDATE {TABELA_IMPREZ} SET nazwa=%s, date=%s, sala=%s, cena_a=%s, cena_b=%s,cena_c=%s,cena_d=%s  WHERE impreza_no = {impreza.id}'
+    sql = f'UPDATE {TB_IMPREZA} SET nazwa=%s, date=%s, sala=%s, cena_a=%s, cena_b=%s,cena_c=%s,cena_d=%s  WHERE impreza_no = {impreza.id}'
     val = impreza.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
@@ -230,7 +254,7 @@ def update_impreza(impreza):
 def load_impreza(impreza_id, impreza_obiekt):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'SELECT * FROM {TABELA_IMPREZ} WHERE impreza_no = {impreza_id}'
+    sql = f'SELECT * FROM {TB_IMPREZA} WHERE impreza_no = {impreza_id}'
     cursor1.execute(sql)
     myresult = cursor1.fetchall()
     if len(myresult) == 1:
@@ -243,7 +267,7 @@ def load_impreza(impreza_id, impreza_obiekt):
 def usun_impreza(impreza_id):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'DELETE FROM {TABELA_IMPREZ} WHERE impreza_no = {impreza_id}'
+    sql = f'DELETE FROM {TB_IMPREZA} WHERE impreza_no = {impreza_id}'
     cursor1.execute(sql)
     db1.commit()
     return cursor1.rowcount == 1
@@ -255,7 +279,7 @@ def dodaj_bilet(bilet):
     db1 = init_database()
     cursor1 = db1.cursor()
     val = bilet.daj_jako_tablica()
-    sql = f'INSERT INTO {TABELA_BILETOW} (kategoria, rzad, miejsce, cena, impreza_no, klient_no) VALUES (%s, %s, %s, %s, %s, %s)'
+    sql = f'INSERT INTO {TB_BILET} (kategoria, rzad, miejsce, cena, impreza_no, klient_no) VALUES (%s, %s, %s, %s, %s, %s)'
     cursor1.execute(sql, val)
     db1.commit()
 
@@ -263,7 +287,7 @@ def dodaj_bilet(bilet):
 def podmien_bilet(bilet):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'UPDATE {TABELA_BILETOW} SET kategoria=%s, rzad=%s, miejsce=%s, cena=%s, impreza_no=%s, klient_no=%s  WHERE bilet_no = {bilet.id}'
+    sql = f'UPDATE {TB_BILET} SET kategoria=%s, rzad=%s, miejsce=%s, cena=%s, impreza_no=%s, klient_no=%s  WHERE bilet_no = {bilet.id}'
     val = bilet.daj_jako_tablica()
     cursor1.execute(sql, val)
     db1.commit()
@@ -273,7 +297,7 @@ def podmien_bilet(bilet):
 def usun_bilet(bilet_id):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'DELETE FROM {TABELA_BILETOW} WHERE bilet_no = {bilet_id}'
+    sql = f'DELETE FROM {TB_BILET} WHERE bilet_no = {bilet_id}'
     cursor1.execute(sql)
     db1.commit()
     return cursor1.rowcount == 1
@@ -282,16 +306,19 @@ def usun_bilet(bilet_id):
 def usun_bilety_z_imprezy(impreza_id):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'DELETE FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id}'
+    sql = f'DELETE FROM {TB_BILET} WHERE impreza_no = {impreza_id}'
     cursor1.execute(sql)
     db1.commit()
     return cursor1.rowcount == 1
 
 
-def policz_bilety_z_imprezy(impreza_id):
+def policz_bilety_z_imprezy(impreza_id, wszystkie):
     db1 = init_database()
     cursor1 = db1.cursor()
-    sql = f'SELECT COUNT(*) FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id}'
+    if wszystkie:
+        sql = f'SELECT COUNT(*) FROM {TB_BILET} WHERE impreza_no = {impreza_id}'
+    else:
+        sql = f'SELECT COUNT(*) FROM {TB_BILET} WHERE impreza_no = {impreza_id} and klient_no = {PUSTY_KLIENT}'
     cursor1.execute(sql)
     db1.commit()
     myresult = cursor1.fetchall()
@@ -306,9 +333,9 @@ def policz_bilety_z_imprezy_dla_kategorii(impreza_id, wszystkie):
     wynik = []
     for k in kategorie:
         if wszystkie:
-            sql = f'SELECT COUNT(*) FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id} AND kategoria = "{k}"'
+            sql = f'SELECT COUNT(*) FROM {TB_BILET} WHERE impreza_no = {impreza_id} AND kategoria = "{k}"'
         else:
-            sql = f'SELECT COUNT(*) FROM {TABELA_BILETOW} WHERE impreza_no = {impreza_id} AND kategoria = "{k}" AND klient_no = {PUSTY_KLIENT}'
+            sql = f'SELECT COUNT(*) FROM {TB_BILET} WHERE impreza_no = {impreza_id} AND kategoria = "{k}" AND klient_no = {PUSTY_KLIENT}'
         cursor1.execute(sql)
         db1.commit()
         myresult = cursor1.fetchall()
@@ -316,6 +343,65 @@ def policz_bilety_z_imprezy_dla_kategorii(impreza_id, wszystkie):
         wynik.append([k, n])
     print(wynik)
     return wynik
+
+
+def load_bilety_dla_imprezy(impreza_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT * FROM {TB_BILET} WHERE impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    myresult = cursor1.fetchall()
+    lista_biletow = []
+    for item in myresult:
+        bilet = BiletDef.Bilet()
+        bilet.laduj_z_tablicy(item)
+        lista_biletow.append(bilet)
+    return lista_biletow
+
+
+def load_bilety_dla_imprezy_ex(impreza_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT {TB_BILET}.kategoria, {TB_BILET}.rzad, {TB_BILET}.miejsce, {TB_BILET}.cena, {TB_KLIENT}.name, {TB_KLIENT}.forname FROM {TB_BILET}' \
+          f' INNER JOIN {TB_KLIENT} ON {TB_BILET}.klient_no = {TB_KLIENT}.klient_no WHERE {TB_BILET}.impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    myresult = cursor1.fetchall()
+    return myresult
+
+
+#    bilety_header = ['lp', 'Impreza', "Data", 'Miejsce', 'Cena']
+def load_bilety_dla_klienta(klient_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT {TB_IMPREZA}.nazwa, {TB_IMPREZA}.date, {TB_BILET}.kategoria, {TB_BILET}.rzad, {TB_BILET}.miejsce, {TB_BILET}.cena FROM {TB_BILET}' \
+          f' INNER JOIN {TB_IMPREZA} ON {TB_BILET}.impreza_no = {TB_IMPREZA}.impreza_no WHERE {TB_BILET}.klient_no = {klient_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    myresult = cursor1.fetchall()
+    result = []
+    cnt = 0
+    for x in myresult:
+        cnt += 1
+        miejsce_ex = f'{x[2]}R{x[3]}M{x[4]}'
+        result.append([cnt, x[0], x[1], miejsce_ex, x[5]])
+
+    return result
+
+
+def execute_zakup(zakup):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    for x in zakup.lista:
+        rzad = x[0]
+        miejsce = x[1]
+        sql = f'UPDATE {TB_BILET} SET klient_no={zakup.klient_id}  WHERE impreza_no = {zakup.impreza_id} AND rzad = {rzad} AND miejsce= {miejsce}'
+        cursor1.execute(sql)
+        db1.commit()
+        if cursor1.rowcount != 1:
+            return False;
+    return True;
 
 
 # ---Test----------------------------------
@@ -326,7 +412,7 @@ def _test():
     mydb = init_database()
     my_cursor = mydb.cursor()
 
-    sql = f"DROP TABLE  IF EXISTS {TABELA_KLIENT}, {TABELA_IMPREZ}, {TABELA_BILETOW}"
+    sql = f"DROP TABLE  IF EXISTS {TB_KLIENT}, {TB_IMPREZA}, {TB_BILET}"
     my_cursor.execute(sql)
 
     init_tabele(my_cursor)
@@ -375,5 +461,17 @@ def _test():
     dodaj_bilet(bilet)
 
 
+def _test2():
+    tickets = load_bilety_dla_imprezy_ex(4)
+    for t in tickets:
+        print(t)
+
+
+def _test3():
+    tickets = load_bilety_dla_klienta(2)
+    for t in tickets:
+        print(t)
+
+
 if __name__ == "__main__":
-    _test()
+    _test3()

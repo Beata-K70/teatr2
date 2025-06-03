@@ -39,11 +39,13 @@ class ImprezaForm(BaseForm):
 
     def _add_edit_items(self, frame):
 
-        nazwaEntry = self._add_edit_item(frame, "Nazwa", self._varNazwa)
-        if not self._nowy:
-            nazwaEntry.config(state="disabled")
+        nazwa_entry = self._add_edit_item(frame, "Nazwa", self._varNazwa)
         lista_sal = SalaDef.get_liste_sal()
-        self._add_combobox_item(frame, "Sala", lista_sal, self._varSala)
+        sala_entry = self._add_combobox_item(frame, "Sala", lista_sal, self._varSala)
+        if not self._nowy:
+            nazwa_entry.config(state="disabled")
+            sala_entry.config(state="disabled")
+
         self._add_edit_item(frame, "Data", self._varData)
         self._add_edit_item(frame, "Cena kategorii A", self._varCenaA)
         self._add_edit_item(frame, "Cena kategorii B", self._varCenaB)
