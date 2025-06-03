@@ -42,15 +42,17 @@ class TeatrApp:
         self._dodaj_szybkie_buttony(button_bar)
 
         # ---
-        self.middle = tk.Frame(self.window, background='green')
+        self.middle = tk.Frame(self.window)  # background='green')
         self.middle.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
         self.middle.grid_rowconfigure(0, weight=1)
         self.middle.grid_columnconfigure(0, weight=0)
 
         self.editor1 = tk.Text(self.middle, bg='white')
         self.editor1.grid(row=0, column=0, sticky=tk.NSEW)
-        self.tree = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
-        self._add_tree_menu()
+        self.klient_lista_box = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
+        self._add_klient_list_box()
+        self.impreza_lista_box = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
+        self._add_impreza_list_box()
 
         # --- StatusBar -------
         status_bar = tk.Frame(self.window)  # , background='yellow')
@@ -63,60 +65,7 @@ class TeatrApp:
         self.window.mainloop()
 
     klient_header = ['id', 'Imię', 'Nazwisko', 'Miejscowość', "Ulica", 'emai', 'telefon']
-
-    def handleClick(app):
-        print('handleClick')
-
-    def handleRightClick(self, event):
-        focused = self.tree.focus()
-        if focused == "":
-            item_state = tk.DISABLED
-        else:
-            item_state = tk.ACTIVE
-        self.context_menu.entryconfigure("Edytuj", state=item_state)
-        self.context_menu.post(event.x_root, event.y_root)
-
-    def _add_tree_menu(self):
-        self.context_menu = tk.Menu(self.window, tearoff=0, )
-        self.context_menu.add_command(label="Kup bilet", command=self.lista_kup_bilet)
-        self.context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
-        self.context_menu.add_separator()
-        self.context_menu.add_command(label="Edytuj", command=self.lista_edytuj_klient)
-        self.context_menu.add_command(label="Usuń", command=self.lista_usun_klient)
-
-        self.tree.bind("<Button-3>", self.handleRightClick)
-
-        for col in self.klient_header:
-            title = col.title()
-            self.tree.heading(col, text=title)  # , command=lambda c=col: sortby(self.tree, c, 0))
-            w = int(1.5 * tkFont.Font().measure(title))
-            self.tree.column(col, width=w)
-
-    def fill_list_klients(self, klients):
-        for i in self.tree.get_children():
-            self.tree.delete(i)
-        for item in klients:
-            self.tree.insert('', 'end', values=item)
-            for ix, val in enumerate(item):
-                col_w = tkFont.Font().measure(val)
-                if self.tree.column(self.klient_header[ix], width=None) < col_w:
-                    self.tree.column(self.klient_header[ix], width=col_w)
-
-    def aktywny_edytor(self):
-        self.middle.grid_columnconfigure(0, weight=1)
-        self.tree.grid_forget()
-        self.editor1.grid(row=0, column=0, sticky=tk.NSEW)
-
-    def aktywna_lista(self):
-        self.middle.grid_columnconfigure(0, weight=1)
-        self.editor1.grid_forget()
-        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
-
-    def reload_list_klientow(self):
-        self.aktywna_lista()
-        klients = TeatrDB.load_klints()
-        self.fill_list_klients(klients)
-
+    imprezy_header = ['id', 'Nazwa', 'Data', 'Sala', "Cena A", "Cena B", "Cena C", "Cena D"]
 
     def _dadaj_pola_statusu(self, frame):
         status_w = [(10, "w"), (5, "center"), (15, "w"), (25, "w")]
@@ -181,11 +130,116 @@ class TeatrApp:
         # ----
         glowne_okno.config(menu=menu_bar)
 
+    # ---------   przełączanie zawartośc Middle ---------------------
+    def deaktywuj_wszystkie(self):
+        self.middle.grid_columnconfigure(0, weight=1)
+        self.editor1.grid_forget()
+        self.klient_lista_box.grid_forget()
+        self.impreza_lista_box.grid_forget()
+
+    def aktywny_edytor(self):
+        self.deaktywuj_wszystkie();
+        self.editor1.grid(row=0, column=0, sticky=tk.NSEW)
+
+    def aktywna_lista_klientow(self):
+        self.deaktywuj_wszystkie();
+        self.klient_lista_box.grid(row=0, column=0, sticky='nswe')
+
+    def aktywna_lista_imprez(self):
+        self.deaktywuj_wszystkie();
+        self.klient_lista_box.grid(row=0, column=0, sticky='nswe')
+
+    #  --- edytor --------
+
     def clear_editor(self):
         self.editor1.delete(1.0, tk.END)
 
     def add_editor(self, txt):
         self.editor1.insert(tk.INSERT, txt)
+
+    #  --- klient list_box --------
+
+    def reload_list_klientow(self):
+        self.aktywna_lista_klientow()
+        klients = TeatrDB.load_klints()
+        self.fill_list_klients(klients)
+
+    def handleRightClick_klient_list_box(self, event):
+        focused = self.klient_lista_box.focus()
+        if focused == "":
+            item_state = tk.DISABLED
+        else:
+            item_state = tk.ACTIVE
+        self._klient_context_menu.entryconfigure("Edytuj", state=item_state)
+        self._klient_context_menu.post(event.x_root, event.y_root)
+
+    def _add_klient_list_box(self):
+        self._klient_context_menu = tk.Menu(self.window, tearoff=0, )
+        self._klient_context_menu.add_command(label="Kup bilet", command=self.lista_kup_bilet)
+        self._klient_context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
+        self._klient_context_menu.add_separator()
+        self._klient_context_menu.add_command(label="Edytuj", command=self.lista_edytuj_klient)
+        self._klient_context_menu.add_command(label="Usuń", command=self.lista_usun_klient)
+
+        self.klient_lista_box.bind("<Button-3>", self.handleRightClick_klient_list_box)
+
+        for col in self.klient_header:
+            title = col.title()
+            self.klient_lista_box.heading(col, text=title)  # , command=lambda c=col: sortby(self.tree, c, 0))
+            w = int(1.5 * tkFont.Font().measure(title))
+            self.klient_lista_box.column(col, width=w)
+
+    def fill_list_klients(self, klients):
+        for i in self.klient_lista_box.get_children():
+            self.klient_lista_box.delete(i)
+        for item in klients:
+            self.klient_lista_box.insert('', 'end', values=item)
+            for ix, val in enumerate(item):
+                col_w = tkFont.Font().measure(val)
+                if self.klient_lista_box.column(self.klient_header[ix], width=None) < col_w:
+                    self.klient_lista_box.column(self.klient_header[ix], width=col_w)
+
+    #  --- impreza list_box --------
+    def reload_list_imprez(self):
+        self.aktywna_lista_imprez()
+        imprezy = TeatrDB.load_imprezy()
+        self.fill_list_impreza(imprezy)
+
+    def handleRightClick_impreza_list_box(self, event):
+        focused = self._impreza_context_menu.focus()
+        if focused == "":
+            item_state = tk.DISABLED
+        else:
+            item_state = tk.ACTIVE
+        self._klient_context_menu.entryconfigure("Edytuj", state=item_state)
+        self._klient_context_menu.post(event.x_root, event.y_root)
+
+    def _add_impreza_list_box(self):
+        self._impreza_context_menu = tk.Menu(self.window, tearoff=0, )
+        self._impreza_context_menu.add_command(label="Kup bilet", command=self.lista_kup_bilet)
+        self._impreza_context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
+        self._impreza_context_menu.add_separator()
+        self._impreza_context_menu.add_command(label="Edytuj", command=self.lista_edytuj_impreza)
+        self._impreza_context_menu.add_command(label="Usuń", command=self.lista_usun_impreza)
+
+        self.impreza_lista_box.bind("<Button-3>", self.handleRightClick_impreza_list_box)
+
+        for col in self.klient_header:
+            title = col.title()
+            self.impreza_lista_box.heading(col, text=title)  # , command=lambda c=col: sortby(self.tree, c, 0))
+            w = int(1.5 * tkFont.Font().measure(title))
+            self.impreza_lista_box.column(col, width=w)
+
+    def fill_list_impreza(self, imprezy):
+        for i in self.klient_lista_box.get_children():
+            self.klient_lista_box.delete(i)
+        for item in imprezy:
+            self.klient_lista_box.insert('', 'end', values=item)
+            for ix, val in enumerate(item):
+                col_w = tkFont.Font().measure(val)
+                if self.impreza_lista_box.column(self.klient_header[ix], width=None) < col_w:
+                    self.impreza_lista_box.column(self.klient_header[ix], width=col_w)
+
 
     def klientCallback(*sv):
         app = sv[0]
@@ -197,7 +251,6 @@ class TeatrApp:
             TeatrDB.update_klient(app.klient)
             app.reload_list_klientow()
 
-
     def imprezaCallback(*sv):
         app = sv[0]
         ev_val = app.evImpreza.get()
@@ -205,6 +258,7 @@ class TeatrApp:
             TeatrDB.add_impreza(app.impreza)
         if ev_val == ImprezaDialog.ImprezaForm.UPDATE_IMPREZA:
             pass
+
 
     def make_active(app):
         app.redbutton.config(state="active")
@@ -246,10 +300,10 @@ class TeatrApp:
         pass
 
     def get_selected_klient_z_listy(self):
-        selected_list = self.tree.selection()
+        selected_list = self.klient_lista_box.selection()
         if len(selected_list) > 0:
             selected = selected_list[0]
-            child = self.tree.item(selected)
+            child = self.klient_lista_box.item(selected)
             klient_id = child["values"][0]
             return klient_id
         else:
@@ -269,7 +323,7 @@ class TeatrApp:
                 klient_info = f' {tmp_klient.imie} {tmp_klient.nazwisko} '
                 txt = f'Czy chcesz usunść klienta {klient_info} ?'
                 if messagebox.askyesno(title="Usuwanie klienta", message=txt):
-                    if not TeatrDB.delete_klient(tmp_klient.id) :
+                    if not TeatrDB.delete_klient(tmp_klient.id):
                         messagebox.showinfo(title="Error", message=f'Błąd usunięcia klienta {klient_info} ')
         app.reload_list_klientow()
 

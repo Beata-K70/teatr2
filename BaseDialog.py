@@ -47,12 +47,12 @@ class BaseForm(tk.Toplevel):
         entry.pack(side=tk.LEFT, padx=5)
         return entry
 
-    def _add_combobox_item(self, parent, caption, var):
+    def _add_combobox_item(self, parent, caption, item_list, var):
         item_fr = tk.Frame(parent )# , background='blue')
         item_fr.grid(sticky=tk.EW)
         label = tk.Label(item_fr, text=caption + ':', width=14, anchor="e")
         label.pack(side=tk.LEFT, padx=5)
-        combo = ttk.Combobox(item_fr, width=30, textvariable=var,     state="readonly",    values=["Python", "C", "C++", "Java"])
+        combo = ttk.Combobox(item_fr, width=30, textvariable=var,     state="readonly",    values=item_list)
         combo.pack(side=tk.LEFT, padx=5)
         return combo
 

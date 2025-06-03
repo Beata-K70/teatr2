@@ -9,7 +9,7 @@ Projekt kursu PYTHON
 """
 
 """
-definicja krzeseł
+definicja kategori krzeseł - tylko 4 kategorie
 A - krzesło kategori A
 B - krzesło kategori B
 C - krzesło kategori C
@@ -100,7 +100,7 @@ class Sala:
         return suma
 
 
-def daj_liste_sal():
+def get_liste_sal():
     lista = []
     for x in lista_sal:
         lista.append(x["nazwa"])
@@ -110,7 +110,7 @@ def daj_liste_sal():
 # ---Test----------------------------------
 if __name__ == "__main__":
     print("\n\n------Sala-------")
-    print(daj_liste_sal())
+    print(get_liste_sal())
     sala = Sala("Główna")
     spis = sala.get_ilosc_krzesel()
     suma = 0

@@ -168,6 +168,14 @@ def delete_klient(klient_id):
     db1.commit()
     return cursor1.rowcount == 1
 
+def load_klints():
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    cursor1.execute(f"SELECT * FROM {TABELA_KLIENT}")
+    myresult = cursor1.fetchall()
+    return myresult
+
+
 # ---- tablica impreza ---------
 
 def add_impreza(impreza):
@@ -179,11 +187,10 @@ def add_impreza(impreza):
     cursor1.execute(sql, val)
     db1.commit()
 
-
-def load_klints():
+def load_imprezy():
     db1 = init_database()
     cursor1 = db1.cursor()
-    cursor1.execute(f"SELECT * FROM {TABELA_KLIENT}")
+    cursor1.execute(f"SELECT * FROM {TABELA_IMPREZ}")
     myresult = cursor1.fetchall()
     return myresult
 
