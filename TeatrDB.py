@@ -90,8 +90,8 @@ TABLES['bilety'] = (
     "  `rzad` int(11),"
     "  `miejsce` int(11),"
     "  `cena` float,"
-    "  `impreza_no` int(11) NOT NULL  UNIQUE KEY,"
-    "  `klient_no` int(11) NOT NULL  UNIQUE KEY,"
+    "  `impreza_no` int(11) NOT NULL,"
+    "  `klient_no` int(11) NOT NULL,"
     "  PRIMARY KEY (`bilet_no`),"
     "  CONSTRAINT fk_impreza FOREIGN KEY (impreza_no) REFERENCES imprezy(impreza_no),"
     "  CONSTRAINT fk_klient FOREIGN KEY (klient_no) REFERENCES klienci(klient_no)"
@@ -311,6 +311,15 @@ def _test():
     bilet.impreza_id = 1
     bilet.klient_id = 1
     dodaj_bilet(bilet)
+
+    bilet.kategoria = 'A'
+    bilet.rzad = 1
+    bilet.miejsce = 3
+    bilet.cena = 24
+    bilet.impreza_id = 1
+    bilet.klient_id = 1
+    dodaj_bilet(bilet)
+
 
 
 if __name__ == "__main__":
