@@ -9,9 +9,12 @@ Projekt kursu PYTHON
 """
 from datetime import datetime, date
 
+DATE_FORMAT = "%d.%m.%Y"
+
 
 class Impreza:
     def __init__(self):
+        self.id = -1
         self._nazwa = ""
         self._data = date.today()
         self._sala = ""
@@ -25,6 +28,17 @@ class Impreza:
         self._data = zrodlo._data
         self._sala = zrodlo._sala
         self._cena = zrodlo._cena
+
+    def laduj_z_tablicy(self,tab):
+        self.id = tab[0]
+        self._nazwa = tab[1]
+        self._data = tab[2]
+        self._sala = tab[3]
+        self._cena[0] = tab[4]
+        self._cena[1] = tab[5]
+        self._cena[2] = tab[6]
+        self._cena[3] = tab[7]
+
 
     @property
     def nazwa(self):
@@ -50,7 +64,7 @@ class Impreza:
 
     def setDateAsStr(self, data_str):
         try:
-            dt = datetime.strptime(data_str, "%d.%m.%Y")
+            dt = datetime.strptime(data_str, DATE_FORMAT)
         except Exception as e:
             raise Exception(f'Niepoprawna data imprezy. Wprowadź w formacie dd.mm.rrrr [{e}]')
         data = dt;

@@ -76,6 +76,10 @@ TABLES['imprezy'] = (
     "  `nazwa` varchar(60) NOT NULL,"
     "  `date` date NOT NULL,"
     "  `sala` varchar(10) NOT NULL,"
+    "  `cena_a` float,"
+    "  `cena_b` float,"
+    "  `cena_c` float,"
+    "  `cena_d` float,"
     "  PRIMARY KEY (`impreza_no`), UNIQUE KEY `nazwa` (`nazwa`)"
     ") ENGINE=InnoDB")
 
@@ -168,6 +172,7 @@ def delete_klient(klient_id):
     db1.commit()
     return cursor1.rowcount == 1
 
+
 def load_klints():
     db1 = init_database()
     cursor1 = db1.cursor()
@@ -182,10 +187,11 @@ def add_impreza(impreza):
     db1 = init_database()
     cursor1 = db1.cursor()
 
-    sql = f'INSERT INTO {TABELA_IMPREZ} (nazwa, date, sala) VALUES (%s, %s, %s)'
-    val = (impreza.nazwa, impreza.data, impreza.sala)
+    sql = f'INSERT INTO {TABELA_IMPREZ} (nazwa, date, sala, cena_a, cena_b,cena_c,cena_d) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+    val = (impreza.nazwa, impreza.data, impreza.sala, impreza.cena[0], impreza.cena[1], impreza.cena[2], impreza.cena[3])
     cursor1.execute(sql, val)
     db1.commit()
+
 
 def load_imprezy():
     db1 = init_database()
@@ -193,6 +199,39 @@ def load_imprezy():
     cursor1.execute(f"SELECT * FROM {TABELA_IMPREZ}")
     myresult = cursor1.fetchall()
     return myresult
+
+
+def update_impreza(impreza):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'UPDATE {TABELA_IMPREZ} SET nazwa=%s, date=%s, sala=%s, cena_a=%s, cena_b=%s,cena_c=%s,cena_d=%s  WHERE impreza_no = {impreza.id}'
+    val = (impreza.nazwa, impreza.data, impreza.sala, impreza.cena[0], impreza.cena[1], impreza.cena[2], impreza.cena[3])
+    cursor1.execute(sql, val)
+    db1.commit()
+    return cursor1.rowcount == 1
+
+
+def load_impreza(impreza_id, impreza_obiekt):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'SELECT * FROM {TABELA_IMPREZ} WHERE impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    myresult = cursor1.fetchall()
+    if len(myresult) == 1:
+        impreza_obiekt.laduj_z_tablicy(myresult[0])
+        print(impreza_obiekt)
+        return True
+    else:
+        return False
+
+
+def delete_impreza(impreza_id):
+    db1 = init_database()
+    cursor1 = db1.cursor()
+    sql = f'DELETE FROM {TABELA_IMPREZ} WHERE impreza_no = {impreza_id}'
+    cursor1.execute(sql)
+    db1.commit()
+    return cursor1.rowcount == 1
 
 
 # ---Test----------------------------------

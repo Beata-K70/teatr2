@@ -4,6 +4,7 @@ import SalaDef
 from BaseDialog import *
 import ImprezaDef
 import SalaDef
+from datetime import datetime, date
 
 from tkinter import messagebox
 
@@ -60,7 +61,7 @@ class ImprezaForm(BaseForm):
 
     def _set_impreza(self, impreza):
         self._varNazwa.set(impreza.nazwa)
-        self._varData.set(impreza.data)
+        self._varData.set(impreza.data.strftime(ImprezaDef.DATE_FORMAT))
         self._varSala.set(impreza.sala)
         self._varCenaA.set(impreza.cena[0])
         self._varCenaB.set(impreza.cena[1])
