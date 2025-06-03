@@ -1,5 +1,6 @@
 import SalaDef
 import ImprezaDef
+import TeatrDB
 
 
 class Bilet:
@@ -9,8 +10,8 @@ class Bilet:
         self.rzad = ""
         self.miejsce = 0
         self.cena = 0
-        self.impreza_id = -1
-        self.klient_id = -1
+        self.impreza_id = 0
+        self.klient_id = 0
 
     def __str__(self):
         return f'R{self.rzad}M{self.miejsce}:{self.kategoria}  impreza_id:{self.impreza_id} klient_id:{self.klient_id}'
@@ -23,7 +24,7 @@ class Bilet:
         bilet.miejsce = krzeslo.miejsce
         bilet.cena = impreza.daj_cene(krzeslo.kategoria)
         bilet.impreza_id = impreza.id
-        bilet.klient_id = 1
+        bilet.klient_id = TeatrDB.PUSTY_KLIENT
         return bilet
 
     def laduj_z_tablicy(self, tab):

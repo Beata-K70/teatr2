@@ -74,16 +74,11 @@ class TeatrApp:
             idx += 1
 
     def _dodaj_szybkie_buttony(self, bar):
-        self.redbutton = tk.Button(bar, text="Kup bilet", fg="red", command=self._kup_bilet_btn_click)
-        self.redbutton.pack(side=tk.LEFT, ipadx=0)
-
-        greenbutton = tk.Button(bar, text="Green", fg="green", command=self._btn_cmd_green)
-        greenbutton.pack(side=tk.LEFT, ipadx=0)
 
         KlientBnt = tk.Button(bar, text="Dodaj klient", fg="blue", command=self._btn_dodaj_klient)
         KlientBnt.pack(side=tk.LEFT, ipadx=0)
 
-        ImprezaBnt = tk.Button(bar, text="Impreza", fg="blue", command=self._btn_dodaj_impreza)
+        ImprezaBnt = tk.Button(bar, text="Dodaj impreze", fg="blue", command=self._btn_dodaj_impreza)
         ImprezaBnt.pack(side=tk.LEFT, ipadx=0)
 
         tk.Button(bar, text="Lista klientów", fg="blue", command=self.lista_klientow_btn_click).pack(side=tk.LEFT, ipadx=2)
@@ -91,7 +86,6 @@ class TeatrApp:
 
         tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=2)
 
-        tk.Button(bar, text="Message", fg="blue", command=self.btn_message_click).pack(side=tk.LEFT, ipadx=2)
 
     def _dodaj_glowne_menu(self, glowne_okno):
         menu_bar = tk.Menu(glowne_okno)
@@ -261,6 +255,7 @@ class TeatrApp:
         self._impreza_context_menu.add_command(label="Kup bilet na impreze", command=self.lista_kup_bilet)
         self._impreza_context_menu.add_command(label="Pokaż bilety", command=self.lista_pokaz_bilety_klienta)
         self._impreza_context_menu.add_command(label="Policz bilety", command=self.lista_policz_bilety_z_imprezy)
+        self._impreza_context_menu.add_command(label="Policz nie sprzedane bilety", command=self.lista_policz_bilety_z_imprezy_nie_sprzedane)
         self._impreza_context_menu.add_separator()
         self._impreza_context_menu.add_command(label="Edytuj", command=self.lista_edytuj_impreza)
         self._impreza_context_menu.add_command(label="Usuń", command=self.lista_usun_impreza)
@@ -298,14 +293,23 @@ class TeatrApp:
         else:
             return -1
 
-    def policz_bilety_z_imprezy(self):
+    def policz_bilety_z_imprezy(self, wszystkie):
         impreza_id = self.get_selected_impreza_z_listy()
         if impreza_id > 0:
             ilosc = TeatrDB.policz_bilety_z_imprezy(impreza_id)
+            wynik = TeatrDB.policz_bilety_z_imprezy_dla_kategorii(impreza_id, wszystkie)
             tmp_impreza = Impreza()
             if TeatrDB.load_impreza(impreza_id, tmp_impreza):
+                if wszystkie:
+                    txt = f'Ilość miejsc: {ilosc}.\n'
+                else:
+                    txt = f'Ilość nie sprzedanych miejsc: {ilosc}. \n'
+                txt = txt + "W tym:\n"
+                for x in wynik:
+                    txt = txt + f'kategoria "{x[0]}" : {x[1]}\n'
+
                 messagebox.showinfo(title=f'Impreza : {tmp_impreza.nazwa}, data: {tmp_impreza.data}',
-                                    message=f'Ilość miejsc: {ilosc}')
+                                    message=txt)
 
     def edytuj_impreza(self):
         impreza_id = self.get_selected_impreza_z_listy()
@@ -332,7 +336,6 @@ class TeatrApp:
         txt = f' Czy chcesz dodać imprezę  "{self.impreza.nazwa}" w dnia {self.impreza.data}\n Sala: {self.impreza.sala}, ilość biletów: {ilosc_biletow} ?'
         if messagebox.askyesno(title="Dodawanie imprezy", message=txt):
             TeatrDB.add_impreza(self.impreza)
-            TeatrDB.load_impreza(self.impreza.id, self.impreza)  # aktualizacja impreza.id
             lista_krzesel = sala.buduj_lista_krzesel()
             for krzeslo in lista_krzesel:
                 bilet = BiletDef.Bilet.daj_wypelniony(krzeslo, self.impreza)
@@ -340,7 +343,10 @@ class TeatrApp:
             self.reload_list_imprez()
 
     def lista_policz_bilety_z_imprezy(app):
-        app.policz_bilety_z_imprezy()
+        app.policz_bilety_z_imprezy(True)
+
+    def lista_policz_bilety_z_imprezy_nie_sprzedane(app):
+        app.policz_bilety_z_imprezy(False)
 
     def lista_edytuj_impreza(app):
         app.edytuj_impreza()
@@ -368,19 +374,7 @@ class TeatrApp:
     def do_nothing(app):
         print(type(app))
 
-    def _kup_bilet_btn_click(app):
-        app.clear_editor()
-        # msize = app.editor1.count("1.0", tk.INSERT)
-        # app.editor1.insert(tk.INSERT, f'Red Btn size = [{msize[0]}]\n')
-        app.statusTab[0]["text"] = "RED"
 
-    def _btn_cmd_green(app):
-        app.add_editor(f'Green Btn {app.counter}\n')
-        app.counter += 1
-        app.statusTab[0]["text"] = "GREEN"
-        print(type(app.add_editor))
-        print(app.add_editor)
-        app.test_fun(app.add_editor)
 
     def test_fun(self, print_fun):
         print_fun('To jest text\n')
@@ -416,10 +410,6 @@ class TeatrApp:
     def edytor_btn_click(app):
         app.aktywny_edytor()
 
-    def btn_message_click(app):
-        # messagebox.showinfo(title="Informatio", message = "Pierwszy message")
-        if messagebox.askokcancel(title="Pytanie", message="Zamknąc okno"):
-            print("Zamknąc")
 
 
 # ---------------
