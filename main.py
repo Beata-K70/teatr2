@@ -9,6 +9,7 @@ import ImprezaDialog
 import ListaBiletowDialog
 import SalaDef
 import TeatrDB
+import sys
 
 from KlientDef import *
 from ImprezaDef import *
@@ -38,7 +39,7 @@ class TeatrApp:
         self.window.grid_columnconfigure(0, weight=1)
 
         # -- menu ---
-        #self._dodaj_glowne_menu(self.window)
+        # self._dodaj_glowne_menu(self.window)
 
         # button_bar
         button_bar = tk.Frame(self.window)  # , background='magenta'  )
@@ -66,6 +67,8 @@ class TeatrApp:
         self._dadaj_pola_statusu(status_bar)
 
         # main
+        m = sys.version.split()
+        self.statusTab[3]['text'] = f'Python: {m[0]}'
         self.window.after(1000, self.timer_update, 0, 10)
         self.reload_list_imprez()
         self.window.mainloop()
@@ -86,7 +89,7 @@ class TeatrApp:
 
         tk.Button(bar, text="Lista klientów", fg="blue", command=self.lista_klientow_btn_click).pack(side=tk.LEFT, ipadx=8)
         tk.Button(bar, text="Dodaj klient", fg="blue", command=self._btn_dodaj_klient).pack(side=tk.LEFT, padx=4, ipadx=8)
-        #tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=8)
+        # tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=8)
 
     def _dodaj_glowne_menu(self, glowne_okno):
         menu_bar = tk.Menu(glowne_okno)
@@ -170,7 +173,7 @@ class TeatrApp:
 
         self.klient_lista_box = ttk.Treeview(master=self.middle, columns=self.klient_header, show="headings")
         self._klient_context_menu = tk.Menu(self.window, tearoff=0)
-        #self._klient_context_menu.add_command(label="Kup bilet", command=self.app_klient_kup_bilet)
+        # self._klient_context_menu.add_command(label="Kup bilet", command=self.app_klient_kup_bilet)
         self._klient_context_menu.add_command(label="Pokaż bilety", command=self.app_pokaz_bilety_klienta)
         self._klient_context_menu.add_separator()
         self._klient_context_menu.add_command(label="Edytuj", command=self.app_edytuj_klient)
@@ -493,7 +496,7 @@ class TeatrApp:
         app.window.after(1000, app.timer_update, 0, 10)
         tm = datetime.now()
         txt = tm.strftime("%H:%M:%S")
-        app.statusTab[0]['text']=txt
+        app.statusTab[0]['text'] = txt
 
 
 # ---------------

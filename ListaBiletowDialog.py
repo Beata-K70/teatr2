@@ -17,7 +17,7 @@ class ListaBiletowForm(BaseForm):
 
         super().__init__(parent, buttons="o", top_most=False, resizable=True)
 
-        self.title(f'Impreza:{impreza.nazwa} w dniu {impreza.data}')
+        self.title(f'Lista biletów:{impreza.nazwa} w dniu {impreza.data}')
 
     def _get_form_size(self):
         return [480, 400]  # width x height
@@ -60,7 +60,7 @@ class KupBiletForm(BaseForm):
         self._varKlient = tk.StringVar()
 
         super().__init__(parent, buttons="ao", top_most=False, resizable=True)
-        self.title(f'Impreza:{impreza.nazwa} w dniu {impreza.data}')
+        self.title(f'Lista biletów:{impreza.nazwa} w dniu {impreza.data}')
 
     def _get_form_size(self):
         return [480, 400]  # width x height
