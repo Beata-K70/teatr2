@@ -59,7 +59,7 @@ TB_KLIENT = "klienci"
 TB_IMPREZA = "imprezy"
 TB_BILET = "bilety"
 
-TABLES = {}
+TABLES = {} #słownik
 TABLES['klienci'] = (
     "CREATE TABLE `klienci` ("
     "  `klient_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
@@ -116,7 +116,7 @@ def init_tabele(cursor):
                 print(err.msg)
         else:
             print("OK")
-    # dodanie pustego klienta
+    # dodanie pustego klienta - sztuczka
     klient = KlientDef.Klient()
     if not load_klient(PUSTY_KLIENT, klient):
         klient.imie = 'NULL'

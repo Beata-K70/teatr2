@@ -61,7 +61,7 @@ class BaseForm(tk.Toplevel):
         w = main_w.winfo_width()
         h = main_w.winfo_height()
 
-        [form_w, form_h] = self._get_form_size();
+        [form_w, form_h] = self._get_form_size()
 
         self.geometry("+%d+%d" % (x + (w - form_w) / 2, y + (h - form_h) / 2))
         self.geometry(f'{form_w}x{form_h}')

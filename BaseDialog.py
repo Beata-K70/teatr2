@@ -34,7 +34,7 @@ class BaseForm(tk.Toplevel):
         # ---
         if 'o' in buttons:
             ok_btn = tk.Button(bottom_fr, text="OK", command=self._ok_btn_click)
-            ok_btn.pack(side=tk.RIGHT, padx=5)
+            ok_btn.pack(side=tk.RIGHT, padx=5) #ukladanie buttonow od prawej
         if 'a' in buttons:
             anuluj_btn = tk.Button(bottom_fr, text="Anuluj", command=self._anuluj_btn_click)
             anuluj_btn.pack(side=tk.RIGHT, padx=5)

@@ -26,7 +26,7 @@ _sala_glowna = {"nazwa": "Główna",
                            "DDDCCAADDDD"]}
 
 _sala_mala = {"nazwa": "Mała",
-             "krzesla": ["AAAA",
+             "krzesla": ["AAAAA",
                          "BBBBBB",
                          "CCCCCCC",
                          "DDDDDDDD"]}

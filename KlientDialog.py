@@ -14,7 +14,7 @@ class KlientForm(BaseForm):
         self.event = event
         self._nowy = nowy
 
-        # varables
+        # zmienne
         self._varImie = tk.StringVar()
         self._varNazwisko = tk.StringVar()
         self._varMiejscowosc = tk.StringVar()
@@ -37,11 +37,11 @@ class KlientForm(BaseForm):
 
     # metoda wywoływana z obiektu przodka, gdy już jest gotowy układ ramek
     def _add_edit_items(self, frame):
-        imieEdit = self._add_edit_item(frame, "Imię", self._varImie)
-        NazwiskoEdit = self._add_edit_item(frame, "Nawisko", self._varNazwisko)
+        imie_edit = self._add_edit_item(frame, "Imię", self._varImie)
+        nazwisko_edit = self._add_edit_item(frame, "Nawisko", self._varNazwisko)
         if not self._nowy:
-            imieEdit.config(state="disabled")
-            NazwiskoEdit.config(state="disabled")
+            imie_edit.config(state="disabled")
+            nazwisko_edit.config(state="disabled")
         self._add_edit_item(frame, "Miejscowość", self._varMiejscowosc)
         self._add_edit_item(frame, "Adres", self._varAdres)
         self._add_edit_item(frame, "email", self._varEmail)
@@ -49,7 +49,7 @@ class KlientForm(BaseForm):
 
     def _clear_btn_click(self):
         self._varImie.set("")
-        self._varNazwisko("")
+        self._varNazwisko.set("")
         self._varMiejscowosc.set("")
         self._varAdres.set("")
         self._varEmail.set("")
