@@ -59,7 +59,7 @@ TB_KLIENT = "klienci"
 TB_IMPREZA = "imprezy"
 TB_BILET = "bilety"
 
-TABLES = {} #słownik
+TABLES = {}  # słownik
 TABLES['klienci'] = (
     "CREATE TABLE `klienci` ("
     "  `klient_no` int(11) NOT NULL AUTO_INCREMENT UNIQUE KEY,"
@@ -282,16 +282,6 @@ def dodaj_bilet(bilet):
     sql = f'INSERT INTO {TB_BILET} (kategoria, rzad, miejsce, cena, impreza_no, klient_no) VALUES (%s, %s, %s, %s, %s, %s)'
     cursor1.execute(sql, val)
     db1.commit()
-
-
-def podmien_bilet(bilet):
-    db1 = init_database()
-    cursor1 = db1.cursor()
-    sql = f'UPDATE {TB_BILET} SET kategoria=%s, rzad=%s, miejsce=%s, cena=%s, impreza_no=%s, klient_no=%s  WHERE bilet_no = {bilet.id}'
-    val = bilet.daj_jako_tablica()
-    cursor1.execute(sql, val)
-    db1.commit()
-    return cursor1.rowcount == 1
 
 
 def usun_bilet(bilet_id):
