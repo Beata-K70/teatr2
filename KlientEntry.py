@@ -1,5 +1,5 @@
 from tkinter import *
-from BaseEntry import *
+from BaseDialog import *
 from KlientDef import *
 
 
