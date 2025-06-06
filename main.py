@@ -18,21 +18,21 @@ from ImprezaDef import *
 class TeatrApp:
 
     def __init__(self):
-        self.counter = 0
         self.statusTab = []
 
         self.window = tk.Tk()
+        # współpraca z okienkami potomnymi
         self.ev_klient = tk.IntVar(master=self.window, name="KlientEvent")
         self.ev_klient.trace("w", self.klient_callback)
         self.ev_impreza = tk.IntVar(master=self.window, name="ImprezaEvent")
         self.ev_impreza.trace("w", self.impreza_callback)
         self.ev_kup_bilet = tk.IntVar(master=self.window, name="KupBiletEvent")
         self.ev_kup_bilet.trace("w", self.kup_bilet_callback)
-
         self.klient = Klient()
         self.impreza = Impreza()
         self.zakup_biletow = BiletDef.Zakup()
 
+        # tworzenie okna głównego
         self.window.geometry('1024x600')
         self.window.title('Teatr')
         self.window.grid_rowconfigure(1, weight=1)
@@ -87,8 +87,10 @@ class TeatrApp:
         tk.Button(bar, text="Lista imprez", fg="blue", command=self.lista_imprez_btn_click).pack(side=tk.LEFT, ipadx=8)
         tk.Button(bar, text="Dodaj impreze", fg="blue", command=self._btn_dodaj_impreza).pack(side=tk.LEFT, ipadx=8)
 
-        tk.Button(bar, text="Lista klientów", fg="blue", command=self.lista_klientow_btn_click).pack(side=tk.LEFT, ipadx=8)
-        tk.Button(bar, text="Dodaj klient", fg="blue", command=self._btn_dodaj_klient).pack(side=tk.LEFT, padx=4, ipadx=8)
+        tk.Button(bar, text="Lista klientów", fg="blue", command=self.lista_klientow_btn_click).pack(side=tk.LEFT,
+                                                                                                     ipadx=8)
+        tk.Button(bar, text="Dodaj klient", fg="blue", command=self._btn_dodaj_klient).pack(side=tk.LEFT, padx=4,
+                                                                                            ipadx=8)
         # tk.Button(bar, text="Edytor", fg="blue", command=self.edytor_btn_click).pack(side=tk.LEFT, ipadx=8)
 
     def _dodaj_glowne_menu(self, glowne_okno):
@@ -283,7 +285,8 @@ class TeatrApp:
         self._impreza_context_menu.add_separator()
         self._impreza_context_menu.add_command(label="Pokaż bilety", command=self.app_pokaz_bilety_z_imprezy)
         self._impreza_context_menu.add_command(label="Policz bilety", command=self.app_policz_bilety_z_imprezy)
-        self._impreza_context_menu.add_command(label="Policz nie sprzedane bilety", command=self.app_policz_bilety_z_imprezy_nie_sprzedane)
+        self._impreza_context_menu.add_command(label="Policz nie sprzedane bilety",
+                                               command=self.app_policz_bilety_z_imprezy_nie_sprzedane)
         self._impreza_context_menu.add_separator()
         self._impreza_context_menu.add_command(label="Edytuj", command=self.app_edytuj_impreza)
         self._impreza_context_menu.add_command(label="Usuń", command=self.app_usun_impreza)
@@ -353,6 +356,7 @@ class TeatrApp:
                 impreza_info = f' {tmp_impreza.nazwa} z dnia {tmp_impreza.data} '
                 txt = f'Czy chcesz usunść imprezę {impreza_info} ?'
                 if messagebox.askyesno(title="Usuwanie imprezy", message=txt):
+                    TeatrDB.usun_bilety_z_imprezy(impreza_id)
                     if not TeatrDB.usun_impreza(tmp_impreza.id):
                         messagebox.showinfo(title="Error", message=f'Błąd usunięcia imprezy {impreza_info} ')
         self.reload_list_imprez()
